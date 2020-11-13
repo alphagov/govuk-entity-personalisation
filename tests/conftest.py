@@ -12,3 +12,21 @@ def terms_synonyms():
                      'acronym', 'etymon', 'stem', 'abbreviation', 'theme', 'root', 'ghost word',
                      'citation form', 'descriptor', 'entry word', 'word', 'root word', 'base',
                      'singular form', 'signifier', 'radical']}
+
+
+@pytest.fixture()
+def variable_word_strings():
+    return ['this is a',
+            'varying length list of strings',
+            'which we want to use for testing purposes.',
+            'hopefully',
+            'it works',
+            'well',
+            'and does not',
+            'fail badly',
+            ':sob face:']
+
+
+@pytest.fixture()
+def two_word_strings():
+    return ['it works', 'fail badly', ':sob face:']

@@ -12,7 +12,7 @@ STOPWORDS_NLTK = set(stopwords.words('english'))
 STOPWORDS_SPACY = sp.Defaults.stop_words
 
 lemmatiser_nltk = WordNetLemmatizer()
-nlp = spacy.load(name='en', disable=['parser', 'ner'])
+nlp = spacy.load(name='en_core_web_sm', disable=['parser', 'ner'])
 
 
 def get_n_word_strings(terms, n):

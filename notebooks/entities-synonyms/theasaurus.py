@@ -1,4 +1,4 @@
-from src.utils.helper import get_n_length_strings
+from src.utils.preprocess import get_n_word_strings
 from src.utils.helper_synonym import get_synonym_all
 
 from os import getenv
@@ -23,11 +23,11 @@ entities = [item for sublist in entities for item in sublist]
 entities = [item.lower() for item in entities]
 
 # extract single-word entities
-entities_single = get_n_length_strings(terms=entities, n=1)
+entities_single = get_n_word_strings(terms=entities, n=1)
 
 # call API to get synonyms
 tic = time()
-entities_single_synonyms = get_synonym_all(terms=entities_single)
+entities_single_synonyms = get_synonym_all(terms=entities_single, thread=3)
 print(time() - tic)
 
 # write to csv

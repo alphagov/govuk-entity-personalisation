@@ -1,5 +1,8 @@
 import pytest
-from pandas import DataFrame
+
+pytest_plugins = [
+    "tests.utils.fixture_helper_embedding",
+]
 
 
 @pytest.fixture()
@@ -72,19 +75,3 @@ def text_clean():
                     + "fired water cannon teargas shell protesting farmer tried break barricade car automobile tractor",
             'spacy': "follow mice attack care farmer march delhi better living condition delhi police tuesday "
                      + "fire water cannon teargas shell protest farmer try break barricade car automobile tractor"}
-
-
-@pytest.fixture()
-def df_embedding_mess():
-    return DataFrame(data=[[1, 0, 0],
-                           [0, 1, 0],
-                           [0, 0, 1]],
-                     columns=['cat', 'sat', 'mat'])
-
-
-@pytest.fixture()
-def df_embedding_clean():
-    return DataFrame(data=[['cat', [1, 0, 0]],
-                           ['sat', [0, 1, 0]],
-                           ['mat', [0, 0, 1]]],
-                     columns=['word', 'embedding'])

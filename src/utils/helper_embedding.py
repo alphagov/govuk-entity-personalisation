@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+import swifter  # noqa: F401
 
 
 def reshape_df(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
@@ -16,3 +18,47 @@ def reshape_df(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
         return df[['word', col_name]]
     except Exception as error:
         print(f"Cause: {error}")
+
+
+def calculate_cosine_similarity(a: list, b: list) -> float:
+    """
+    Computes the cosine-similarity of a word with each word in a dataframe.
+
+    :param a: List of first vector to compute cosine-similarity.
+    :param b: List of second vector to compute cosine-similarity.
+    :return: Float of the cosine-similarity between a and b.
+    """
+    try:
+        dot_product = np.dot(a, b)
+        norm_a = np.linalg.norm(a)
+        norm_b = np.linalg.norm(b)
+        return dot_product / (norm_a * norm_b)
+    except ValueError:
+        print('Error!'
+              'Possible reason is that the two vectors are not of the same length.\n'
+              'Please pass in vectors of the same length.')
+        raise
+    except TypeError:
+        print('Error!'
+              'Possible reason is that at least one of the vectors has None in.\n'
+              'Please pass in vectors with int or floats in them only.')
+        raise
+
+
+def extract_cosine_similarity(df: pd.DataFrame, word: str, col_embedding: str) -> pd.Series:
+    """
+    Computes the cosine-similarity for a given word against a column of word-embeddings.
+
+    :param df: Dataframe to use.
+    :param word: String to get cosine-similarity of.
+    :param col_embedding: String of word-embedding column in dataframe.
+    """
+    # get embedding associated with word
+    df = df.set_index(keys='word')
+    word_embedding = df.at[word, col_embedding]
+
+    # compute cosine-similarity of selected word against all other embeddings
+    cosine_similarity = df[col_embedding].swifter.apply(calculate_cosine_similarity,
+                                                        b=word_embedding)
+
+    return cosine_similarity

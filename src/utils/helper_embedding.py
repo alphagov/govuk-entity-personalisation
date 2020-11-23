@@ -52,6 +52,7 @@ def extract_cosine_similarity(df: pd.DataFrame, word: str, col_embedding: str) -
     :param df: Dataframe to use.
     :param word: String to get cosine-similarity of.
     :param col_embedding: String of word-embedding column in dataframe.
+    :return: Series of each string and its associated cosine-similarity score to word.
     """
     # get embedding associated with word
     df = df.set_index(keys='word')
@@ -62,3 +63,36 @@ def extract_cosine_similarity(df: pd.DataFrame, word: str, col_embedding: str) -
                                                         b=word_embedding)
 
     return cosine_similarity
+
+
+def get_embedding_synonyms(df: pd.DataFrame,
+                           word: str,
+                           col_embedding: str,
+                           threshold: float) -> list:
+    """
+    Get the set of synonyms of a word according whether it is above a cosine-similarity threshold.
+
+    :param df: Dataframe to use.
+    :param word: String to get cosine-similarity of.
+    :param col_embedding: String of word-embedding column in dataframe.
+    :param threshold: Float of the cosine-similarity score that a word must exceed to be
+                      considered a synonym.
+    :return: List of synonyms that are above a threshold for similarity.
+    """
+    cosine_similarity = extract_cosine_similarity(df=df,
+                                                  word=word,
+                                                  col_embedding=col_embedding)
+
+    # remove word from Series (this will have cosine-similarity of 1)
+    cosine_similarity = cosine_similarity.drop(labels=word)
+
+    # turn Series to DataFrame
+    cosine_similarity = cosine_similarity.reset_index()
+
+    # filter to values above threshold
+    cosine_similarity = cosine_similarity[cosine_similarity[col_embedding] >= threshold]
+
+    # get words with cosine-similarity above threshold
+    synonyms = cosine_similarity['word'].tolist()
+
+    return synonyms

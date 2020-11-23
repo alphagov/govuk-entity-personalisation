@@ -4,17 +4,17 @@ from pandas import DataFrame, Series
 
 @pytest.fixture()
 def df_embedding_mess():
-    return DataFrame(data=[[1, 0, 0],
-                           [0, 1, 0],
-                           [0, 0, 1]],
+    return DataFrame(data=[[0.15, 0.66, 0.78],
+                           [0.34, 0.12, 0.03],
+                           [0.49, 0.32, 0.77]],
                      columns=['cat', 'sat', 'mat'])
 
 
 @pytest.fixture()
 def df_embedding_clean():
-    return DataFrame(data=[['cat', [1, 0, 0]],
-                           ['sat', [0, 1, 0]],
-                           ['mat', [0, 0, 1]]],
+    return DataFrame(data=[['cat', [0.15, 0.34, 0.49]],
+                           ['sat', [0.66, 0.12, 0.32]],
+                           ['mat', [0.78, 0.03, 0.77]]],
                      columns=['word', 'embedding'])
 
 
@@ -32,6 +32,12 @@ def vectors_cos_sim():
 
 
 @pytest.fixture()
-def df_cos_sim():
-    return Series(data=[0.0, 1.0, 0.0],
-                  index=['cat', 'sat', 'mat'])
+def series_cos_sim():
+    return Series(data=[0.648909, 1.000000, 0.938497],
+                  index=['cat', 'sat', 'mat'],
+                  name='embedding')
+
+
+@pytest.fixture()
+def similar_words():
+    return {'bow': ['mat']}

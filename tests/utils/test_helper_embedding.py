@@ -17,8 +17,16 @@ def test_calculate_cosine_similarity(vectors, vectors_cos_sim):
                                          b=vectors['b']) == vectors_cos_sim
 
 
-def test_extract_cosine_similarity(df_embedding_clean, df_cos_sim):
+def test_extract_cosine_similarity(df_embedding_clean, series_cos_sim):
     series = f.extract_cosine_similarity(df=df_embedding_clean,
                                          word='sat',
                                          col_embedding='embedding')
-    assert series.equals(df_cos_sim)
+    series = round(number=series, ndigits=6)
+    assert series.equals(series_cos_sim)
+
+
+def test_get_embedding_synonyms(df_embedding_clean, similar_words):
+    assert f.get_embedding_synonyms(df=df_embedding_clean,
+                                    word='sat',
+                                    col_embedding='embedding',
+                                    threshold=0.65) == similar_words['bow']

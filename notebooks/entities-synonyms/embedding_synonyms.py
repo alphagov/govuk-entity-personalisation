@@ -27,28 +27,27 @@ entities = [item.lower() for item in entities]
 # extract single-word entities
 entities_single = get_n_word_strings(terms=entities, n=1)
 
-# restrict to entities
-df_bow_entities = df_bow[df_bow['word'].isin(entities_single)].copy()
-df_tfidf_entities = df_tfidf[df_tfidf['word'].isin(entities_single)].copy()
 
-# compute synonyms
+# get synonyms
 file_names = ['tf_synonyms', 'tfidf_synonyms']
-for counter, df in enumerate((df_bow_entities, df_tfidf_entities)):
+for counter, df in enumerate((df_bow, df_tfidf)):
+    # restrict to entities
+    df_entities = df[df['word'].isin(entities_single)].copy()
     synonyms = []
-    for word in tqdm(df['word']):
-        synonyms.append(get_embedding_synonyms(df=df_bow,
+    for word in tqdm(df_entities['word']):
+        synonyms.append(get_embedding_synonyms(df=df,
                                                word=word,
                                                col_embedding='bow_embeddings',
                                                threshold=0.75,
                                                enable=False))
-    df['embedding_synonyms'] = synonyms
+    df_entities['embedding_synonyms'] = synonyms
     # filter for non-0-returned synonym results
-    df = df[df['embedding_synonyms'].map(len) > 0]
-    df = df[['word', 'embedding_synonyms']]
+    df_entities = df_entities[df_entities['embedding_synonyms'].map(len) > 0]
+    df_entities = df_entities[['word', 'embedding_synonyms']]
 
     # save as json files
     file_name = 'data/processed/' + file_names[counter] + '.json'
-    synonyms_save = dict(zip(df['word'], df['embedding_synonyms']))
+    synonyms_save = dict(zip(df_entities['word'], df_entities['embedding_synonyms']))
     with open(file_name, mode='w') as fp:
         json.dump(obj=synonyms_save,
                   fp=fp,

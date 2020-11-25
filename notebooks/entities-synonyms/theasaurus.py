@@ -32,6 +32,9 @@ print(time() - tic)
 
 # write to csv
 with open('data/processed/api_synonyms.json', mode='w') as fp:
-    json.dump(obj=entities_single_synonyms, fp=fp)
+    json.dump(obj=entities_single_synonyms,
+              fp=fp,
+              sort_keys=True,
+              indent=4)
 
 del csv_file, entities_single, file, tic

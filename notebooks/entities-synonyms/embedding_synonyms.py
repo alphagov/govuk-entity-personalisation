@@ -4,6 +4,7 @@ from src.utils.helper_embedding import get_embedding_synonyms
 from os import getenv
 import pandas as pd
 import csv
+import json
 from tqdm import tqdm
 
 
@@ -31,8 +32,8 @@ df_bow_entities = df_bow[df_bow['word'].isin(entities_single)].copy()
 df_tfidf_entities = df_tfidf[df_tfidf['word'].isin(entities_single)].copy()
 
 # compute synonyms
-df_synonyms = [df_bow_entities, df_tfidf]
-for df in (df_bow_entities, df_tfidf_entities):
+file_names = ['tf_synonyms', 'tfidf_synonyms']
+for counter, df in enumerate((df_bow_entities, df_tfidf_entities)):
     synonyms = []
     for word in tqdm(df['word']):
         synonyms.append(get_embedding_synonyms(df=df_bow,
@@ -44,4 +45,12 @@ for df in (df_bow_entities, df_tfidf_entities):
     # filter for non-0-returned synonym results
     df = df[df['embedding_synonyms'].map(len) > 0]
     df = df[['word', 'embedding_synonyms']]
-    df_synonyms.append(df)
+
+    # save as json files
+    file_name = 'data/processed/' + file_names[counter] + '.json'
+    synonyms_save = dict(zip(df['word'], df['embedding_synonyms']))
+    with open(file_name, mode='w') as fp:
+        json.dump(obj=synonyms_save,
+                  fp=fp,
+                  sort_keys=True,
+                  indent=4)

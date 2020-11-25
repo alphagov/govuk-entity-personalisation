@@ -27,17 +27,21 @@ entities = [item.lower() for item in entities]
 entities_single = get_n_word_strings(terms=entities, n=1)
 
 # restrict to entities
-df_entities = df_bow[df_bow['word'].isin(entities_single)].copy()
+df_bow_entities = df_bow[df_bow['word'].isin(entities_single)].copy()
+df_tfidf_entities = df_tfidf[df_tfidf['word'].isin(entities_single)].copy()
 
-synonyms = []
-for word in tqdm(df_entities['word']):
-    synonyms.append(get_embedding_synonyms(df=df_bow,
-                                           word=word,
-                                           col_embedding='bow_embeddings',
-                                           threshold=0.75))
-df_entities['embedding_synonyms'] = synonyms
-
-
-# check out synonyms
-df_entities_synonyms = df_entities[df_entities['embedding_synonyms'].map(len) > 0]
-df_entities_synonyms = df_entities_synonyms[['word', 'embedding_synonyms']]
+# compute synonyms
+df_synonyms = [df_bow_entities, df_tfidf]
+for df in (df_bow_entities, df_tfidf_entities):
+    synonyms = []
+    for word in tqdm(df['word']):
+        synonyms.append(get_embedding_synonyms(df=df_bow,
+                                               word=word,
+                                               col_embedding='bow_embeddings',
+                                               threshold=0.75,
+                                               enable=False))
+    df['embedding_synonyms'] = synonyms
+    # filter for non-0-returned synonym results
+    df = df[df['embedding_synonyms'].map(len) > 0]
+    df = df[['word', 'embedding_synonyms']]
+    df_synonyms.append(df)

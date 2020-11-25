@@ -45,13 +45,14 @@ def calculate_cosine_similarity(a: list, b: list) -> float:
         raise
 
 
-def extract_cosine_similarity(df: pd.DataFrame, word: str, col_embedding: str) -> pd.Series:
+def extract_cosine_similarity(df: pd.DataFrame, word: str, col_embedding: str, enable: bool = True) -> pd.Series:
     """
     Computes the cosine-similarity for a given word against a column of word-embeddings.
 
     :param df: Dataframe to use.
     :param word: String to get cosine-similarity of.
     :param col_embedding: String of word-embedding column in dataframe.
+    :param enable: Boolean to show or hide progress bar. Default is True, to turn it on.
     :return: Series of each string and its associated cosine-similarity score to word.
     """
     # get embedding associated with word
@@ -59,8 +60,8 @@ def extract_cosine_similarity(df: pd.DataFrame, word: str, col_embedding: str) -
     word_embedding = df.at[word, col_embedding]
 
     # compute cosine-similarity of selected word against all other embeddings
-    cosine_similarity = df[col_embedding].swifter.apply(calculate_cosine_similarity,
-                                                        b=word_embedding)
+    cosine_similarity = df[col_embedding].swifter.progress_bar(enable=enable).apply(calculate_cosine_similarity,
+                                                                                    b=word_embedding)
 
     return cosine_similarity
 
@@ -68,7 +69,8 @@ def extract_cosine_similarity(df: pd.DataFrame, word: str, col_embedding: str) -
 def get_embedding_synonyms(df: pd.DataFrame,
                            word: str,
                            col_embedding: str,
-                           threshold: float) -> list:
+                           threshold: float,
+                           **kwargs) -> list:
     """
     Get the set of synonyms of a word according whether it is above a cosine-similarity threshold.
 
@@ -81,7 +83,8 @@ def get_embedding_synonyms(df: pd.DataFrame,
     """
     cosine_similarity = extract_cosine_similarity(df=df,
                                                   word=word,
-                                                  col_embedding=col_embedding)
+                                                  col_embedding=col_embedding,
+                                                  **kwargs)
 
     # remove word from Series (this will have cosine-similarity of 1)
     cosine_similarity = cosine_similarity.drop(labels=word)

@@ -1,7 +1,5 @@
-flake8
-detect-secrets
-pre-commit
-pytest
-recommonmark
-Sphinx
-sphinx-markdown-tables
+pandas==1.1.4
+numpy==1.19.4
+flatten_dict==0.3.0
+protobuf==3.14.0
+recommonmark==0.6.0

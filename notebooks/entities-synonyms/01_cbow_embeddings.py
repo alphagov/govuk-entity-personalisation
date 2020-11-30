@@ -6,11 +6,15 @@ import pandas as pd
 from gensim.models.phrases import Phrases, Phraser
 from gensim.models import Word2Vec
 
+
+# Reference: https://colab.research.google.com/drive/1A4x2yNS3V1nDZFYoQavpoX7AEQ9Rqtve#scrollTo=m1An-k0q9PMr
+
 n_cores = mp.cpu_count() - 1
 epoch_logger = EpochLogger()
 
 df = pd.read_csv(filepath_or_buffer='data/processed/df.csv',
                  index_col=0)
+
 
 # remove empty values
 df = df.dropna(subset=['text_clean'])
@@ -29,6 +33,7 @@ sentences = bigram_model[sentences]
 model_w2v = Word2Vec(min_count=30,
                      window=4,
                      size=300,
+                     sg=0,
                      sample=6e-5,
                      alpha=0.03,
                      min_alpha=0.0007,
@@ -43,10 +48,11 @@ print(f"Time taken to build Word2Vec vocabulary: {elapsed_time} minutes")
 start_time = time()
 model_w2v.train(sentences=sentences,
                 total_examples=model_w2v.corpus_count,
-                epochs=30,
+                epochs=10,
                 callbacks=[epoch_logger])
 elapsed_time = round(number=(time() - start_time) / 60, ndigits=2)
 print(f"Time taken to train Word2Vec model: {elapsed_time} minutes")
 
 # make model more memory efficient - okay to do as don't plan to train further
 model_w2v.init_sims(replace=True)
+model_w2v.save('model/word2vec_cbow.model')

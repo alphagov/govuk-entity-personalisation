@@ -1,18 +1,16 @@
 from src.utils.preprocess import get_n_word_strings
 from src.utils.helper_embedding import get_embedding_synonyms
 
-from os import getenv
 import pandas as pd
 import csv
 import json
 from tqdm import tqdm
 
 
-DATA_DIR = getenv('DATA_DIR')
-
 df_bow = pd.read_pickle(filepath_or_buffer='data/processed/tf_embeddings.pkl')
 df_tfidf = pd.read_pickle(filepath_or_buffer='data/processed/tfidf_embeddings.pkl')
-with open(DATA_DIR + '/kg_entities.csv', encoding='utf-8') as csv_file:
+# generated from data/interim/kg_entities.cypher
+with open('data/interim/kg_entities.csv', encoding='utf-8') as csv_file:
     # skip first line
     next(csv_file, None)
     file = csv.reader(csv_file, delimiter=',')

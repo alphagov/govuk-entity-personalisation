@@ -1,6 +1,7 @@
 from gensim.models import Word2Vec
 import csv
 import json
+import pandas as pd
 
 
 # load model and entities
@@ -23,9 +24,19 @@ cbow_entities = list(set(entities) & set(cbow_terms))
 synonyms = [model_w2v.wv.most_similar(positive=x) for x in cbow_entities]
 cbow_synonyms = dict(zip(cbow_entities, synonyms))
 
-# save as json file
+# save as json file - human-readable
 with open('data/processed/cbow_synonyms.json', mode='w') as fp:
     json.dump(obj=cbow_synonyms,
               fp=fp,
               sort_keys=True,
               indent=4)
+
+# transform to df for knowledge graph
+# extract synonyms with cosine-similarity greater than 0.5 from tuples within nested list
+synonyms = [[y[0] for y in x if y[1] > 0.5] for x in synonyms]
+cbow_synonyms = pd.DataFrame(data={'entity': cbow_entities,
+                                   'synonym': synonyms})
+cbow_synonyms = cbow_synonyms.explode(column='synonym')
+cbow_synonyms = cbow_synonyms.dropna(subset=['synonym'])
+cbow_synonyms.to_csv(path_or_buf='data/processed/cbow_synonyms.csv',
+                     index=False)

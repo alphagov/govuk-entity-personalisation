@@ -204,7 +204,6 @@ np.mean(predictions)
 
 # to calculate the rank, we SORT and ENUMERATE the next_URL:count for each of the current_URL
 # note that in the code beneath, we are using a nested structure by calling 'unflatten()'
-pagePath_predictor_unflatten = unflatten(pagePath_predictor)
 
 pagePath_predictor_unflatten_ranked = {}
 for k, v in pagePath_predictor_unflatten.items():

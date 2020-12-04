@@ -21,7 +21,7 @@ FROM `govuk-bigquery-analytics.87773428.ga_sessions_20201113`, unnest(hits) as h
 WHERE hits.type = "PAGE" and hits.hour = 12
 Limit 10000000
 '''
-visit_data = pd.read_csv("bq-results-20201116-153658-4lgqv331oo43.csv")
+visit_data = pd.read_csv(DATA_DIR + "bq-results-20201116-153658-4lgqv331oo43.csv")
 visit_data.shape
 
 # there is data sorting issue as seen here

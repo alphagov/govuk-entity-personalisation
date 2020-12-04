@@ -13,7 +13,7 @@ These results should not be regarded in terms of good or bad, rather they just e
 
 ## Data used
 
-The data used in the analysis is pulled from a single hour of usage (midday) of the GovUK website on 2020-11-13. This contains 844k unique records. As can be seen beneath, for a single `fullVisitorId`, there can be multiple values for `visitId`. It relates to hits which are classified as `PAGE`.
+The data used in the analysis is pulled from a single hour of usage (midday) of the GovUK website on 2020-11-13. This contains 844k unique records. As can be seen beneath, for a single `fullVisitorId`, there can be multiple values for `visitId`. This data is filtered so that we are looking at `hits.type = "PAGE"`.
 
 ## Illustration of data
 

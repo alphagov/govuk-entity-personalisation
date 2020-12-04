@@ -11,8 +11,7 @@ import numpy as np
 import re
 from flatten_dict import unflatten, flatten
 
-os.chdir("/home/james/Downloads")
-data_dir = '/home/james/Documents/gds_nlp/govuk-entity-personalisation/data'
+DATA_DIR = 'data/'
 
 # downloaded data from bigquery, using sql beneath
 '''

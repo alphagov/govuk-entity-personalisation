@@ -34,5 +34,5 @@ df['text_clean'] = df['text'].parallel_apply(clean_text,
 elapsed_time = (time() - start_time) / 60
 print(f"Time to clean: {round(elapsed_time, 2)} minutes")
 
-df.to_csv(path_or_buf='data/processed/df.csv',
+df.to_csv(path_or_buf='data/processed/content_store_clean.csv',
           columns=['base_path', 'text', 'text_clean'])

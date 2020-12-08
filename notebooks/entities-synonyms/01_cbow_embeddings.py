@@ -12,7 +12,7 @@ from gensim.models import Word2Vec
 n_cores = mp.cpu_count() - 1
 epoch_logger = EpochLogger()
 
-df = pd.read_csv(filepath_or_buffer='data/processed/df.csv',
+df = pd.read_csv(filepath_or_buffer='data/processed/content_store_clean.csv',
                  index_col=0)
 
 

@@ -1,14 +1,11 @@
 from src.utils.preprocess import get_n_word_strings
 from src.utils.helper_synonym import get_synonym_all
 
-from os import getenv
 from time import time
 import pandas as pd
 import re
 import json
 
-
-DATA_DIR = getenv('DATA_DIR')
 
 # generated from data/interim/kg_entities.cypher
 df_entities = pd.read_csv(filepath_or_buffer='data/interim/kg_entities.csv')

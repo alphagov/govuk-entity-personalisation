@@ -1,2 +1,2 @@
-MATCH (e:Entities)
-RETURN e.Name;
+MATCH (e:Entity)
+RETURN e.name, e.entity_type;

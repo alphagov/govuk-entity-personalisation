@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-df = pd.read_csv(filepath_or_buffer='data/processed/df.csv')
+df = pd.read_csv(filepath_or_buffer='data/processed/content_store_clean.csv')
 
 # convert dtype object to unicode string
 df['text_clean'] = df['text_clean'].astype('U').values

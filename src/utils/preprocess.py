@@ -15,13 +15,13 @@ lemmatiser_nltk = WordNetLemmatizer()
 nlp = spacy.load(name='en_core_web_sm', disable=['parser', 'ner'])
 
 
-def get_n_word_strings(terms, n):
+def get_n_word_strings(terms: list, n: int) -> list:
     """
     Extract all n-word strings from a list of varying n-word strings.
 
     :param terms: List of strings to extract from.
-    :param n: Number of words in a string to extract by.
-    :return: A list of n-word strings.
+    :param n: Integer of words in a string to extract by.
+    :return: List of n-word strings.
     """
     try:
         if isinstance(terms, str):
@@ -40,15 +40,15 @@ def get_n_word_strings(terms, n):
         print(f"{terms} is not a string or a list of strings. Please enter one!")
 
 
-def scrub_stopwords(txt, lib_sw=None):
+def scrub_stopwords(txt: str, lib_sw: str = None) -> str:
     """
     Removes stopwords from text using a choice of libraries.
     Reference:
         - https://medium.com/towards-artificial-intelligence/stop-the-stopwords-using-different-python-libraries-ffa6df941653 # noqa: E501
 
-    :param txt: The text to pass in to remove stopwords.
-    :param lib_sw: The library to use to remove stopwords.
-    :return: Text that has had its stopwords removed.
+    :param txt: String to pass in to remove stopwords.
+    :param lib_sw: String of the library to use to remove stopwords.
+    :return: String that has had its stopwords removed.
     """
     if lib_sw is None:
         pass
@@ -72,15 +72,15 @@ def scrub_stopwords(txt, lib_sw=None):
                         + "Please enter one from [None, 'sklearn', 'nltk', 'spacy', 'gensim']")
 
 
-def lemmatise_text(txt, lib_l=None):
+def lemmatise_text(txt: str, lib_l: str = None) -> str:
     """
-    Lemmatises the text using a choice of libaries.
+    Lemmatises the text using a choice of libraries.
     Reference:
         - https://www.machinelearningplus.com/nlp/lemmatization-examples-python/#comparingnltktextblobspacypatternandstanfordcorenlp # noqa: E501
 
-    :param txt: The text to lemmatise on.
-    :param lib_l: The library to use to perform lemmatisation.
-    :return: Text that has been lemmatised on.
+    :param txt: String to lemmatise on.
+    :param lib_l: String of the library to use to perform lemmatisation.
+    :return: String that has been lemmatised on.
     """
     if lib_l is None:
         pass
@@ -95,7 +95,7 @@ def lemmatise_text(txt, lib_l=None):
                         + "Please enter one from [None, 'nltk', 'spacy']")
 
 
-def clean_text(txt, lib_sw, lib_l):
+def clean_text(txt: str, lib_sw: str, lib_l: str) -> str:
     """
     Cleans text by:
         - Lower-casing
@@ -103,10 +103,10 @@ def clean_text(txt, lib_sw, lib_l):
         - Removing stopwords
         - Lemmatising
 
-    :param txt: The text to pass in to clean.
-    :param stopword: The library to use to remove stopwords.
-    :param lemma: The library to use to lemma-tise.
-    :return: Text that has been cleaned.
+    :param txt: String to pass in to clean.
+    :param lib_sw: String of the library to use to remove stopwords.
+    :param lib_l: String of the library to use to lemmatise.
+    :return: String that has been cleaned.
     """
 
     try:

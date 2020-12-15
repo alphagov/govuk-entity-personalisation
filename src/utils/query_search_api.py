@@ -3,6 +3,15 @@ from requests.exceptions import HTTPError
 
 
 def query_search_api(query, n_results=10, fields=['description']):
+    """
+    API documentation here:
+    https://dataingovernment.blog.gov.uk/2016/05/26/use-the-search-api-to-get-useful-information-about-gov-uk-content/
+
+    :param query: str
+    :param n_results: int
+    :param fields: list of fields you want from the json
+    :return: json
+    """
 
     try:
         resp = requests.get(

@@ -719,6 +719,7 @@ MigrationBackup/
 
 # Ignore the contents of the `data` folder, except for the `README.md` file
 data/*
+model/*
 !data/README.md
 
 # Ignore the contents of the `data` sub-folders, except for their `.gitkeep` files; adapted from
@@ -732,6 +733,8 @@ data/processed/*
 !data/raw/.gitkeep
 !data/interim/.gitkeep
 !data/processed/.gitkeep
+!/data/interim/kg_entities.cypher
+!model/.gitkeep
 
 # Ignore the `.secrets` file
 .secrets

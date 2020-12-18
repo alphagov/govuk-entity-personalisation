@@ -1,6 +1,6 @@
 # Investigating relationships between successive URLs
 
-## Predictable relationships between consecutive URLs 
+## Predictable relationships between consecutive URLs
 
 The hypothesis is that there is no relationship between the sequences of government GOVUK website URLs visited by a user. Clicks are essentially randomly distributed, according to their availability. There is a natural degree of accuracy, of a naive prediction, just due the layout of the government website.
 
@@ -9,11 +9,11 @@ In summary:
 - there is a [65%] chance that the next URL will be found in the next [10] recommended URLs
 - the Mean Reciprocal Rank (MRR) for the predictions is [0.43] on a holdout test set
 
-These results should not be regarded in terms of good or bad, rather they just establish a reference score. This serves as a benchmark to be beaten in future tailored predictions, which incorporate additional explanatory data regarding the user. This enables meaningful discussion and development of future models. These measures should be seen as the naiive or random prediction threshold. Any future models should be better than this measure.  
+These results should not be regarded in terms of good or bad, rather they just establish a reference score. This serves as a benchmark to be beaten in future tailored predictions, which incorporate additional explanatory data regarding the user. This enables meaningful discussion and development of future models. These measures should be seen as the naiive or random prediction threshold. Any future models should be better than this measure.
 
 ## Data used
 
-The data used in the analysis is pulled from a single hour of usage (midday) of the GovUK website on 2020-11-13. This contains 844k unique records. As can be seen beneath, for a single `fullVisitorId`, there can be multiple values for `visitId`. It relates to hits which are classified as `PAGE`.
+The data used in the analysis is pulled from a single hour of usage (midday) of the GovUK website on 2020-11-13. This contains 844k unique records. As can be seen beneath, for a single `fullVisitorId`, there can be multiple values for `visitId`. This data is filtered so that we are looking at `hits.type = "PAGE"`.
 
 ## Illustration of data
 
@@ -103,6 +103,6 @@ The predictive power of the model should be seen as establishing an initial benc
 
 Q. Is this not a simple tabulation of what has happened previously, to predict the future, with no regard to the user?
 
-A. Yes, this is simply aggregating results and ordering URLs by the measure `P(new_URL|current_URL, current_time)`. We can make this more nuanced by using a tighter definition of the data we are conditioning on. For example, location and device are a good start, as these are immediately available. 
+A. Yes, this is simply aggregating results and ordering URLs by the measure `P(new_URL|current_URL, current_time)`. We can make this more nuanced by using a tighter definition of the data we are conditioning on. For example, location and device are a good start, as these are immediately available.
 
 The impact of personalisation, via addition of user specific data, should be measured against this benchmark. This then enables a cost benefit analysis (CBA) of the effort to record, store, recall and process user data, in the name of personalisation.

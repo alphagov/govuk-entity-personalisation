@@ -3,22 +3,30 @@
 -- Reference:
 --  https://github.com/alphagov/govuk-user-journey-models/blob/master/queries/joining_user-intent-data_big-query.sql#L150
 --
--- ## Notes
--- The `clientID` field is the only field that is in common between BigQuery and the uis-data.
--- Upload uis-data to BQ using the following schema in the "Edit as text" format:
--- Started:STRING,Ended:STRING,Tracking_Link:STRING,Page_Path:STRING,clientID:STRING,Q1:STRING,Q4:STRING,Q5:STRING,target:STRING,respondent_id:INTEGER,full_url:STRING,page:STRING,section:STRING,org:STRING,Started_Date:STRING,Ended_Date:STRING,Started_Date_sub_12h:STRING
+-- Notes:
+--  The `clientID` field is the only field that is in common between BigQuery and the uis-data.
+--  Upload uis-data to BQ using the following schema in the "Edit as text" format:
+--  Started:STRING,Ended:STRING,Tracking_Link:STRING,Page_Path:STRING,clientID:STRING,Q1:STRING,Q4:STRING,Q5:STRING,target:STRING,respondent_id:INTEGER,full_url:STRING,page:STRING,section:STRING,org:STRING,Started_Date:STRING,Ended_Date:STRING,Started_Date_sub_12h:STRING
 
--- `clientID` is a floating point value up to 10 decimal places. BigQuery stores this value as a string. Worth noting that BigQuery has a technical limit where it can only process numbers that have decimal places up to 9 positions. Depending on how you've configured the table, a number of strategies could be employed:
+--  `clientID` is a floating point value up to 10 decimal places. BigQuery stores this value as a string. Worth noting that BigQuery has a technical limit where it can only process numbers that have decimal places up to 9 positions. Depending on how you've configured the table, a number of strategies could be employed:
 --     + Multiply `clientID` by a multiple of 10, to reduce the number of decimal places.
 --     + Cast as FLOAT64.
 --     + Encode `clientID` as STRING. `clientID` is encoded as STRING in BQ.
 --
--- `clientID` can be attached to multiple sessions, and each session can contain multiple events.
--- To support with finding the correct corresponding session on ga, we are filtering `eventCategory`, and `eventAction` for events related to completing a survey response.
+--  `clientID` can be attached to multiple sessions, and each session can contain multiple events.
+--  To support with finding the correct corresponding session on ga, we are filtering `eventCategory`, and `eventAction` for events related to completing a survey response.
+
+-- Structure:
+--  Code is in the following stages:
+--      1. Stage One: For GA, un-nest hits to get info from each `pageview` and extract custom dimensions.
+--      2. Stage Two: For GA, aggregate on `session_id` and `date` level.
+--      3. Stage Three: For GA, when a session spans more than one day, aggregate over the whole session.
+--      4. Stage Four: For GA and UIS, join GA data to user intents survey; get unique session_id:survey response pairs.
 
 -----
--- unnest hits to get info from each pageview
--- extract custom dimensions
+
+-- Stage One:
+-- Unnest hits to get info from each `pageview` and extract custom dimensions
 WITH ga_select_cols AS (
   SELECT
     clientId,
@@ -57,7 +65,8 @@ WITH ga_select_cols AS (
     _TABLE_SUFFIX BETWEEN '20200311' AND '20200312'
 ),
 
--- aggregate on a session_id and date level
+-- Stage Two:
+-- Aggregate on `session_id` and `date` level
 ga_aggregated AS (
   SELECT
     clientId,
@@ -108,7 +117,8 @@ ga_aggregated AS (
     visitNumber
 ),
 
--- when a session spans more than one day, aggregate over the whole session
+-- Stage Three:
+-- When a session spans more than one day, aggregate over the whole session
 ga AS (
   SELECT
     clientId,
@@ -144,7 +154,8 @@ ga AS (
     ga_aggregated
   )
 
--- join GA data to user intents survey, get unique session_id:survey response pairs
+-- Stage Four:
+-- Join GA data to user intents survey; get unique session_id:survey response pairs
 SELECT DISTINCT
     intents.primary_key,
     intents.clientID AS intents_clientID,

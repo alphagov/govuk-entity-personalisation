@@ -1,7 +1,8 @@
 /* GA Sessions x UIS */
 -- Query to join user-intents-survey data to sessions data on BigQuery
 -- Reference:
---  https://github.com/alphagov/govuk-user-journey-models/blob/master/queries/joining_user-intent-data_big-query.sql#L150
+--  https://github.com/alphagov/govuk-user-journey-models/blob/master/queries/joining_user-intent-data_big-query.sql
+--  https://github.com/alphagov/govuk-user-journey-models/blob/master/notebooks/LoadSmartSurveyData-finalform.ipynb
 --
 -- Notes:
 --  The `clientID` field is the only field that is in common between BigQuery and the uis-data.

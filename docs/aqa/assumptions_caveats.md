@@ -44,12 +44,34 @@ The log contains the following assumptions and caveats:
     :depth: 1
 ```
 
-### Assumption 1: Insert plain English title here
+### Assumption 1: Search terms can be extracted from `pagePath`
 
-* **Quality**: Insert RAG rating here
-* **Impact**: Insert RAG rating here
+* **Quality**: Green
+* **Impact**: Red
 
-Add plain English description here.
+Found that there are two competing methods for extracting search terms on GOV.UK Search. They are:
+1. [Search Analysis](https://github.com/alphagov/govuk-entity-personalisation/blob/main/src/make_data/longterm_searchquerysample.sql)
+1. [User-journeys Analysis](https://github.com/alphagov/govuk-user-journey-models/blob/master/queries/joining_user-intent-data_big-query.sql)
+
+The former looks at Search terms only whereas latter looks at user-journeys, some of which can contain search terms.
+
+This assumption applies to `src/make_data/search_uis.sql` where we want the journey data for people who make searches.
+This is so we can assess whether the search results gives them their intended results. It will allow us to thus
+benchmark robustly our Search approaches to see which one performs better.
+
+From eyeballing the below query, we find that the two methods for extracting search terms are equivalent.
+
+```sql
+SELECT DISTINCT
+  hits.page.pagePath,
+  hits.page.searchKeyword
+FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`,
+  UNNEST(hits) AS hits
+WHERE
+  hits.page.searchKeyword IS NOT NULL
+  AND _table_suffix BETWEEN FORMAT_DATE('%Y%m%d',DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY))
+  AND FORMAT_DATE('%Y%m%d',DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY));
+```
 
 ### Assumption 2: Insert plain English title here
 

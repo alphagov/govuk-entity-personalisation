@@ -63,7 +63,7 @@ WITH ga_select_cols AS (
     UNNEST(sessions.hits) AS hits
   -- filter to just the days you want to look at/join survey data to
   WHERE
-    _TABLE_SUFFIX BETWEEN '20200311' AND '20200312'
+    _TABLE_SUFFIX BETWEEN '20200401' AND '20200407'
 ),
 
 -- Stage Two:
@@ -165,12 +165,16 @@ SELECT DISTINCT
     ga.visitNumber AS ga_visitNum,
     intents.Started,
     intents.Ended,
+    -- Describe why you came to GOV.UK today
+    intents.Q3,
     -- Have you found what you were looking for?
     intents.Q4,
     -- Overall, how did you feel about your visit to GOV.UK today?
     intents.Q5,
     -- Have you been anywhere else for help with this already?
     intents.Q6,
+    -- Where did you go for help?
+    intents.Q7,
     ga.session_id,
     ga.date AS ga_date,
 
@@ -195,7 +199,7 @@ SELECT DISTINCT
         ELSE 0
         END AS full_url_in_session_flag
 FROM
-    `govuk-bigquery-analytics.datascience.user_intent_survey_20191023_20200311` AS intents
+    `govuk-bigquery-analytics.datascience.uisdata_all_for_bq_20200401_20200407` AS intents
 INNER JOIN ga
     -- uploaded `clientID` as a string, and `clientID` is stored as a string in BQ.
   ON intents.clientID = ga.clientId

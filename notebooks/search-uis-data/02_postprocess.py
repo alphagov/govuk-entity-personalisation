@@ -1,4 +1,4 @@
-from src.utils.helper_intent_uis import get_linguistic_features
+import src.utils.helper_intent_uis as f
 
 import os
 import pandas as pd
@@ -15,40 +15,36 @@ df = pd.read_csv(filepath_or_buffer=DATA_PROCESSED + '/test.csv')
 intent_text_full = df["intent_text_full"].tolist()
 # remove nans
 intent_text_full = [x for x in intent_text_full if x == x]
-# extract pos, tag and dep, lemma and stop
+# extract pos and lemma
 # note: pos is constant between `Q3` and `intent_text_full`
 #       whereas dep changes between `Q3` and `intent_text_full`
 #       thus, focus on pos for extracting intent from `Q3` later on
-linguistic_features = [get_linguistic_features(txt) for txt in intent_text_full]
+df_pos = f.get_dict_to_df(txt=intent_text_full, linguistic_feature='pos')
+df_lemma = f.get_dict_to_df(txt=intent_text_full, linguistic_feature='lemma')
+df_stop = f.get_dict_to_df(txt=intent_text_full, linguistic_feature='stop')
 
-# get pos as we want to see most common pos for intent
-pos = [txt.get('pos') for txt in linguistic_features]
-lemma = [txt.get('lemma') for txt in linguistic_features]
-# store together
-intent_pos = dict(zip(intent_text_full, pos))
-intent_lemma = dict(zip(intent_text_full, lemma))
-
-
-# check one element of dictionary
-intent_pos.get('register as a vulnerable resident for supermarket delivery')
-
-# convert to dataframe so can plot distribution
-df_pos = pd.DataFrame.from_dict(data=intent_pos,
-                                orient='index').reset_index()
-df_pos = df_pos.melt(id_vars="index",
-                     var_name="word_position",
-                     value_name="pos")
-# relabel to get 'Describe why you came to GOV.UK today?'
-df_pos = df_pos.rename(columns={"index": "q3"})
-df_pos = df_pos.sort_values(by=["q3", "word_position"])
-df_pos = df_pos.dropna(subset=["pos"], axis=0)
+# join
+df_ling_feature = df_lemma.merge(right=df_stop,
+                                 how='inner',
+                                 on=["q3", "word_position"],
+                                 validate='one_to_one')
+df_ling_feature = df_ling_feature.merge(right=df_pos,
+                                        how='inner',
+                                        on=["q3", "word_position"],
+                                        validate='one_to_one')
 
 
-# see noun, verb, adp, det and propn are most common
-sns.catplot(x="pos", kind='count', data=df_pos,
-            order=df_pos['pos'].value_counts().index)
+# Option 1: See most common POS with all words
+# noun, verb, adp, det and propn are most common
+sns.catplot(x="pos", kind='count', data=df_ling_feature,
+            order=df_ling_feature['pos'].value_counts().index)
 plt.show()
 plt.close()
 
-# filter for only noun, verb, adp, det and propn
-df_pos = df_pos[df_pos["pos"].isin(["NOUN", "VERB", "ADP", "DET", "PROPN"])]
+# Option 2: See most common POS with non-stopwords
+# noun, verb, propn, adj are most common
+df_no_stop = df_ling_feature[df_ling_feature["stop"] == False]  # noqa: E712
+sns.catplot(x="pos", kind='count', data=df_no_stop,
+            order=df_no_stop['pos'].value_counts().index)
+plt.show()
+plt.close()

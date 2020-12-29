@@ -40,7 +40,6 @@ def get_dict_to_df(txt: Union[str, list], linguistic_feature: str) -> pd.DataFra
     """
     Extracts a linguistic feature from list of strings and transforms to dataframe.
 
-
     :param txt: String or list of strings to extract linguistic features from.
     :param linguistic_feature: String of the linguistic feature such as POS, dep or tag that you want to extract.
                                The linguistic features you can extract are:

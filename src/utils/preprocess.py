@@ -1,6 +1,6 @@
 from re import sub
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
-from nltk import word_tokenize
+from nltk import word_tokenize, tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import spacy
@@ -159,3 +159,33 @@ def correct_sentence_spelling(txt: str, max_edit_distance: int = 2, suggestion_i
                                             max_edit_distance=max_edit_distance,
                                             **kwargs)
     return suggestions[suggestion_idx].term
+
+
+def correct_doc_spelling(doc: str, max_edit_distance: int = 2, suggestion_idx: int = 0, **kwargs) -> str:
+    """
+    Corrects possible incorrect spelling in a document with multiple sentences.
+
+    :param doc: String of text you want to correct the spelling for.
+    :param max_edit_distance: Integer of the number of places you want to correct spelling for.
+                              Must be at most 5, though this can be configured in function script, preprocess.py, at
+                              the following line: sym_spell = SymSpell(max_dictionary_edit_distance=5, prefix_length=7).
+                                e.g. If max_edit_distance=2, then conmdituon -> condition
+                                        max_edit_distance=1, then conmdituon -> conmdituon
+    :param suggestion_idx: Integer of the spell-correct suggestion you want to return.
+                           This applies only when there are multiple spell-correct suggestions.
+    :param **kwargs: Additional keyword arguments to pass into sym_spell.lookup_compound().
+    :return: String of text with spellings corrected.
+    """
+    # split text into list of sentences
+    doc = tokenize.sent_tokenize(text=doc)
+
+    # apply spell-corrector to each sentence
+    doc = [correct_sentence_spelling(txt=txt,
+                                     max_edit_distance=max_edit_distance,
+                                     suggestion_idx=suggestion_idx,
+                                     **kwargs) for txt in doc]
+
+    # bring sentences back together
+    doc = '. '.join(doc) + '.'
+
+    return doc

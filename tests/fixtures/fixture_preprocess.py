@@ -55,4 +55,5 @@ def text_clean():
 
 @pytest.fixture()
 def text_spell_correct():
-    return "whereas the love heAd dated for much of thE Past who couldn't read in six grade and inspired him"
+    return {'sentence': "whereas the love heAd dated for much of thE Past who couldn't read in six grade and inspired him",  # noqa: E501
+            'document': "Good morning Or Adams. The patient is writing for you in room number 3."}

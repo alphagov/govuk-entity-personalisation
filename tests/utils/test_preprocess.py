@@ -33,6 +33,13 @@ def test_clean_text(text, text_clean):
 
 
 def test_correct_sentence_spelling(text_misspell, text_spell_correct):
-    assert f.correct_sentence_spelling(txt=text_misspell,
+    assert f.correct_sentence_spelling(txt=text_misspell['sentence'],
                                        max_edit_distance=2,
-                                       transfer_casing=True) == text_spell_correct
+                                       transfer_casing=True) == text_spell_correct['sentence']
+
+
+def test_correct_doc_spelling(text_misspell, text_spell_correct):
+    assert f.correct_doc_spelling(doc=text_misspell['document'],
+                                  ignore_non_words=True,
+                                  max_edit_distance=2,
+                                  transfer_casing=True) == text_spell_correct['document']

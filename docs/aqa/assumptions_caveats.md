@@ -73,9 +73,13 @@ WHERE
   AND FORMAT_DATE('%Y%m%d',DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY));
 ```
 
-### Assumption 2: Insert plain English title here
+### Assumption 2: People completing user-intent data is representative of GOV.UK visitors
 
-* **Quality**: Insert RAG rating here
-* **Impact**: Insert RAG rating here
+* **Quality**: RED
+* **Impact**: RED
 
-Add plain English description here.
+To draw inferences on how good search is from understanding self-reported intents from the User-Intent-Survey (UIS), we need to assume that those who complete the UIS are representative of the wider set of users captured in our BigQuery data (those consenting to cookies) and more widely, the population of users accessing GOV.UK (those who consent and do not consent to cookies).
+
+If this assumption is not true, then the self-reported and true user-intent we have from the UIS is not representative of the wider set of people who use GOV.UK so using the UIS intents data as a benchmarking tool for our subsequent work on Search would not apply to **all** our users. We will risk making changes to Search which may benefit those who completed a UIS but not those who did not.
+
+However, it is still worthwhile exploring the UIS data because it is our only measure of true user-intent and we can design the survey so that it is more robust in randomly selecting users on GOV.UK to complete.

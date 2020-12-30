@@ -6,7 +6,8 @@ import pandas as pd
 
 DATA_PROCESSED = os.getenv('DIR_DATA_PROCESSED')
 
-# import manually-labelled intent data
+# import manually-labelled intent data:
+# https://drive.google.com/drive/folders/1mBc3iHys1X44IwPTUeeySTaHrIh9mZiL?usp=sharing
 df = pd.read_csv(filepath_or_buffer=DATA_PROCESSED + '/test.csv')
 
 # convert to list and remove nans

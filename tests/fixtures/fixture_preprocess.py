@@ -20,13 +20,6 @@ def two_word_strings():
 
 
 @pytest.fixture()
-def text():
-    return "Following mice attacks, caring farmers were marching to Delhi for better living conditions. "\
-           + "Delhi police on Tuesday fired water cannons and teargas shells at protesting farmers as "\
-           + "they tried to break barricades with their cars, automobiles and tractors."
-
-
-@pytest.fixture()
 def text_stopword():
     return {'sklearn': "Following mice attacks, caring farmers marching Delhi better living conditions. Delhi police "
                        + "Tuesday fired water cannons teargas shells protesting farmers tried break barricades "
@@ -58,3 +51,8 @@ def text_clean():
                     + "fired water cannon teargas shell protesting farmer tried break barricade car automobile tractor",
             'spacy': "follow mice attack care farmer march delhi better living condition delhi police tuesday "
                      + "fire water cannon teargas shell protest farmer try break barricade car automobile tractor"}
+
+
+@pytest.fixture()
+def text_spell_correct():
+    return "whereas the love heAd dated for much of thE Past who couldn't read in six grade and inspired him"

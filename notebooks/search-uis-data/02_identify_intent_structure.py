@@ -19,9 +19,9 @@ intent_text_full = [x for x in intent_text_full if x == x]
 # note: pos is constant between `Q3` and `intent_text_full`
 #       whereas dep changes between `Q3` and `intent_text_full`
 #       thus, focus on pos for extracting intent from `Q3` later on
-df_pos = f.get_dict_to_df(txt=intent_text_full, linguistic_feature='pos')
-df_lemma = f.get_dict_to_df(txt=intent_text_full, linguistic_feature='lemma')
-df_stop = f.get_dict_to_df(txt=intent_text_full, linguistic_feature='stop')
+df_pos = f.get_linguistic_dict_to_df(txt=intent_text_full, linguistic_feature='pos')
+df_lemma = f.get_linguistic_dict_to_df(txt=intent_text_full, linguistic_feature='lemma')
+df_stop = f.get_linguistic_dict_to_df(txt=intent_text_full, linguistic_feature='stop')
 
 # join
 df_ling_feature = df_lemma.merge(right=df_stop,

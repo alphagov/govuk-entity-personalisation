@@ -36,7 +36,7 @@ def get_linguistic_features(txt: str) -> dict:
     return dict_linguistic
 
 
-def get_dict_to_df(txt: Union[str, list], linguistic_feature: str) -> pd.DataFrame:
+def get_linguistic_dict_to_df(txt: Union[str, list], linguistic_feature: str) -> pd.DataFrame:
     """
     Extracts a linguistic feature from list of strings and transforms to dataframe.
 
@@ -54,7 +54,7 @@ def get_dict_to_df(txt: Union[str, list], linguistic_feature: str) -> pd.DataFra
     try:
         if isinstance(txt, str):
             txt = [txt]
-            return get_dict_to_df(txt=txt, linguistic_feature=linguistic_feature)
+            return get_linguistic_dict_to_df(txt=txt, linguistic_feature=linguistic_feature)
         else:
             feature_all = [get_linguistic_features(txt) for txt in txt]
             feature = [txt.get(linguistic_feature) for txt in feature_all]

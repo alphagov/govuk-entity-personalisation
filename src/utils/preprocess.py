@@ -5,6 +5,8 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import spacy
 from gensim.parsing.preprocessing import remove_stopwords
+import pkg_resources
+from symspellpy import SymSpell
 
 
 sp = spacy.load('en_core_web_sm')
@@ -13,6 +15,22 @@ STOPWORDS_SPACY = sp.Defaults.stop_words
 
 lemmatiser_nltk = WordNetLemmatizer()
 nlp = spacy.load(name='en_core_web_sm', disable=['parser', 'ner'])
+
+# set max_dictionary_edit_distance=0 to avoid spelling correction
+dictionary_path = pkg_resources.resource_filename("symspellpy",
+                                                  "frequency_dictionary_en_82_765.txt")
+bigram_path = pkg_resources.resource_filename("symspellpy",
+                                              "frequency_bigramdictionary_en_243_342.txt")
+sym_spell = SymSpell(max_dictionary_edit_distance=5, prefix_length=7)
+
+# term_index is the column of the term and
+# count_index is the column of the term frequency
+sym_spell.load_dictionary(corpus=dictionary_path,
+                          term_index=0,
+                          count_index=1)
+sym_spell.load_dictionary(corpus=bigram_path,
+                          term_index=0,
+                          count_index=1)
 
 
 def get_n_word_strings(terms: list, n: int) -> list:
@@ -108,7 +126,6 @@ def clean_text(txt: str, lib_sw: str, lib_l: str) -> str:
     :param lib_l: String of the library to use to lemmatise.
     :return: String that has been cleaned.
     """
-
     try:
         txt = txt.lower()
         txt = sub(pattern=r'[^\w\s]', repl='', string=txt)
@@ -118,3 +135,27 @@ def clean_text(txt: str, lib_sw: str, lib_l: str) -> str:
 
     except Exception as error:
         print(f"Cannot clean text. Cause is: {error}")
+
+
+def correct_sentence_spelling(txt: str, max_edit_distance: int = 2, suggestion_idx: int = 0, **kwargs) -> str:
+    """
+    Corrects possible incorrect spelling in a sentence.
+    Reference:
+        - https://symspellpy.readthedocs.io/en/latest/examples/lookup_compound.html
+        - https://symspellpy.readthedocs.io/en/latest/api/symspellpy.html
+
+    :param txt: String of text you want to correct the spelling for.
+    :param max_edit_distance: Integer of the number of places you want to correct spelling for.
+                              Must be at most 5, though this can be configured in function script, preprocess.py, at
+                              the following line: sym_spell = SymSpell(max_dictionary_edit_distance=5, prefix_length=7).
+                                e.g. If max_edit_distance=2, then conmdituon -> condition
+                                        max_edit_distance=1, then conmdituon -> conmdituon
+    :param suggestion_idx: Integer of the spell-correct suggestion you want to return.
+                           This applies only when there are multiple spell-correct suggestions.
+    :param **kwargs: Additional keyword arguments to pass into sym_spell.lookup_compound().
+    :return: String of text with spellings corrected.
+    """
+    suggestions = sym_spell.lookup_compound(phrase=txt,
+                                            max_edit_distance=max_edit_distance,
+                                            **kwargs)
+    return suggestions[suggestion_idx].term

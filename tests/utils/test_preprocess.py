@@ -30,3 +30,9 @@ def test_clean_text(text, text_clean):
     assert f.clean_text(txt=text,
                         lib_sw='spacy',
                         lib_l='spacy') == text_clean['spacy']
+
+
+def test_correct_sentence_spelling(text_misspell, text_spell_correct):
+    assert f.correct_sentence_spelling(txt=text_misspell,
+                                       max_edit_distance=2,
+                                       transfer_casing=True) == text_spell_correct

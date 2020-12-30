@@ -143,6 +143,9 @@ def correct_sentence_spelling(txt: str, max_edit_distance: int = 2, suggestion_i
     Reference:
         - https://symspellpy.readthedocs.io/en/latest/examples/lookup_compound.html
         - https://symspellpy.readthedocs.io/en/latest/api/symspellpy.html
+    Note:
+        - Corrects "COVID-19" to "OVID 19"
+        - Corrects "lockdown" to "lock own"
 
     :param txt: String of text you want to correct the spelling for.
     :param max_edit_distance: Integer of the number of places you want to correct spelling for.

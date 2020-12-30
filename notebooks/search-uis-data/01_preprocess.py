@@ -1,5 +1,4 @@
 from src.utils.helper_bq import create_bq_client
-from src.utils.helper_intent_uis import get_linguistic_features
 
 import os
 import pandas as pd
@@ -41,11 +40,6 @@ df_not_found = df_not_found[["primary_key",
                              "PageSequence"]]
 df_not_found = df_not_found.sort_values(by=["session_id", "Started", "Ended"])
 
-# use POS-tagging to obtain intent
-# e.g. I want to look for coronavirus content
-# e.g. I wish to apply for a passport
-# e.g. I need to get help with applying for benefits
-df_not_found["linguistic_features"] = df_not_found["Q3"].swifter.apply(get_linguistic_features)
-
-df_not_found[["Q3", "linguistic_features"]].to_csv(path_or_buf=DATA_INTERIM + '/test.csv',
-                                                   index=False)
+# export for manually-labelling intent
+df_not_found[["Q3"]].to_csv(path_or_buf=DATA_INTERIM + '/test.csv',
+                            index=False)

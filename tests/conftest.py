@@ -19,4 +19,4 @@ def text():
 @pytest.fixture()
 def text_misspell():
     return {'sentence': "whereis th elove heHAd dated forImuch of thEPast who couqdn'tread in sixtgrade and ins pired him",  # noqa: E501
-            'document': "Goid morning Dr. Adams. The patient is w8iting for you in room njmbqr 3"}
+            'document': "Goid morning Dr. Adams. The patient is w8iting for you in room njmbqr 3."}

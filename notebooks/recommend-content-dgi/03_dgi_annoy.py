@@ -14,7 +14,7 @@ import numpy as np
 import os
 from annoy import AnnoyIndex
 
-os.chdir('/home/james/Documents/gds_nlp/govuk-knowledge-graph/data')
+os.chdir('/data')
 
 
 def get_cosine_from_similarity(similarity, dp=4):

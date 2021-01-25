@@ -65,6 +65,7 @@ gpustat==0.6.0
 grpcio==1.33.2
 h5py==2.10.0
 hiredis==1.1.0
+html5lib==1.1
 identify==1.5.9
 idna==2.10
 imagesize==1.2.0
@@ -146,6 +147,7 @@ pycodestyle==2.6.0
 pycparser==2.20
 pydata-google-auth==1.1.0
 PyDictionary==2.0.1
+pydot==1.4.1
 pyflakes==2.2.0
 Pygments==2.7.2
 pyparsing==2.4.7

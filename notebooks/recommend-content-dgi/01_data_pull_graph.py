@@ -5,12 +5,13 @@ from py2neo import Graph
 import pickle
 import os
 
-DATA_DIR = '/home/james/Documents/gds_nlp/govuk-entity-personalisation/data'
+DATA_DIR = os.getenv('DIR_DATA')
 
 gov_graph = Graph(scheme="https",
                   host="knowledge-graph.integration.govuk.digital",
                   port=7473,
                   secure=True,
+                  # note: replace hashes with actual passwird
                   auth=('neo4j', '################'))
 
 

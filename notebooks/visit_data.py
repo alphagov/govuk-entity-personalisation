@@ -11,7 +11,8 @@ import numpy as np
 import re
 from flatten_dict import unflatten, flatten
 
-DATA_DIR = 'data/'
+os.chdir("/home/james/Downloads")
+data_dir = '/home/james/Documents/gds_nlp/govuk-entity-personalisation/data'
 
 # downloaded data from bigquery, using sql beneath
 '''
@@ -21,7 +22,7 @@ FROM `govuk-bigquery-analytics.87773428.ga_sessions_20201113`, unnest(hits) as h
 WHERE hits.type = "PAGE" and hits.hour = 12
 Limit 10000000
 '''
-visit_data = pd.read_csv(DATA_DIR + "bq-results-20201116-153658-4lgqv331oo43.csv")
+visit_data = pd.read_csv("bq-results-20201116-153658-4lgqv331oo43.csv")
 visit_data.shape
 
 # there is data sorting issue as seen here
@@ -204,6 +205,7 @@ np.mean(predictions)
 
 # to calculate the rank, we SORT and ENUMERATE the next_URL:count for each of the current_URL
 # note that in the code beneath, we are using a nested structure by calling 'unflatten()'
+pagePath_predictor_unflatten = unflatten(pagePath_predictor)
 
 pagePath_predictor_unflatten_ranked = {}
 for k, v in pagePath_predictor_unflatten.items():
@@ -227,7 +229,7 @@ test_data['top_5'] = [1 if rrp >= 0.2 else 0 for rrp in test_data['reciprocal_ra
 np.mean(test_data['top_10'])
 np.mean(test_data['top_5'])
 # write results to file
-test_data.to_csv(os.path.join(DATA_DIR, 'processed/test_predictions.csv'), header=True, index=False)
+test_data.to_csv(os.path.join(data_dir, 'processed/test_predictions.csv'), header=True, index=False)
 
 # look at the aggregate MRR performance by category - shine a light on the ease of some predictions
 pagePath_abbreviated_lag1_test_MRR = (

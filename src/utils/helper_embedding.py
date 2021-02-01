@@ -1,6 +1,16 @@
+from typing import Union
 import pandas as pd
 import numpy as np
 import swifter  # noqa: F401
+import tensorflow_hub as hub
+import tensorflow as tf
+from bs4 import BeautifulSoup
+
+
+# DAN model, lighter A stands for averaging
+model = hub.load('data/external/universal-sentence-encoder_4')
+# Transformer model, more performant, runs on GPU, if available
+# model = hub.load('data/external/universal-sentence-encoder-large_5')
 
 
 def reshape_df(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
@@ -99,3 +109,56 @@ def get_embedding_synonyms(df: pd.DataFrame,
     synonyms = cosine_similarity['word'].tolist()
 
     return synonyms
+
+
+def extract_paragraphs(txt: str) -> list:
+    """
+    Extracts the paragraphs from HTML code as defined by the <p> anchor.
+
+    :param txt: String of the content to derive an embedding for.
+    :return: List of all the paragraphs.
+    """
+    soup = BeautifulSoup(txt, features='html5lib')
+
+    # get all paragraph text
+    txt = [t for t in soup.find_all(text=True) if t.parent.name in ['p']]
+    # remove empty elements so don't get dodgy embeddings
+    txt = [t for t in txt if t]
+
+    return txt
+
+
+def get_document_embedding(txt: Union[list, str]) -> np.ndarray:
+    """
+    Averages embeddings across sentences.
+
+    :param txt: List or string of the content to get embeddings for.
+    :return: Array of averaged document-embeddings.
+    """
+    try:
+        embedding = model(txt)
+        average_embedding = tf.math.reduce_mean(embedding, axis=0).numpy()
+        return average_embedding
+    except Exception:
+        return [np.nan] * 512
+
+
+def get_paragraphs_and_embeddings(id: str, txt: str) -> (str, str, np.ndarray):
+    """
+    Extracts paragraphs from HTML code and their associated embeddings.
+
+    :param id: String of the id associatied with the txt.
+    :param txt: String of the HTML code to extract paragraphs and USE-embeddings from.
+    :return: String and array of paragraphs extracted and USE embeddings.
+    """
+    paragraphs = extract_paragraphs(txt=txt)
+    # if list not empty
+    if paragraphs:
+        # get USE embeddings
+        embedding_use = get_document_embedding(txt=paragraphs)
+        # join list elements to one string
+        paragraphs = ' '.join(paragraphs)
+        return [id, paragraphs, embedding_use]
+
+    else:
+        return [id, None, [np.nan] * 512]

@@ -36,14 +36,27 @@ def find_unique_entries(verbs_or_objects):
     return unique_entries
 
 if __name__ == "__main__":
-    all_content_items = pd.read_csv("data/processed/preprocessed_content_store_010221.csv", sep="\t", compression="gzip",
-                                    low_memory=False)
+    all_content_items = pd.read_csv("data/processed/preprocessed_content_store_010221.csv", sep="\t", compression="gzip")
     # all_content_items = pd.read_csv("data/processed/mini_content.csv")
     print("Finished reading from the preprocessed content store!")
     nlp = spacy.load("en_core_web_sm")
     pages = []
+    no_svos = []
     for index, content_item in all_content_items.iterrows():
-        pages.append(Page(content_item, nlp))
+        page = Page(content_item, nlp)
+        pages.append(page)
+        titles = page.titles(nlp)
+        if any(titles):
+            if not any(titles[0].subject_object_triples()):
+                no_svos.append(titles[0].title)
+    print("*******************************************")
+    print("*******************************************")
+    print("*******************************************")
+    print("*******************************************")
+    print("*******************************************")
+    print("*******************************************")
+    print("*******************************************")
+    print(no_svos)
     verbs, objects = get_verbs_objects(pages, nlp)
     with open('outputs/objects.json', 'w') as json_file:
         json.dump(objects, json_file)

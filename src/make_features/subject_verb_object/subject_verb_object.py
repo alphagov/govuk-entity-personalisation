@@ -40,8 +40,10 @@ class TitleProcessor:
         print(f"text: {token.text}")
         print(f"dep: {token.dep_}")
         print(f"head dep: {token.head.dep_}")
+        print(f"head pos: {token.head.pos_}")
         print(f"head head pos: {token.head.head.pos_}")
         print(f"lefts: {list(token.lefts)}")
+        print(f"rights: {list(token.rights)}")
         print()
 
 
@@ -83,7 +85,7 @@ class EntityCombinationProcessor(TitleProcessor):
     def _compound_left_compounds(self, token):
         compounded_lefts = []
         reversed_lefts = list(token.lefts) or []
-        reversed_lefts.reverse()# or []
+        reversed_lefts.reverse()
         print(f"compounded lefts for token: {token.text} are {reversed_lefts}")
         if reversed_lefts:
             for left in reversed_lefts:
@@ -102,7 +104,7 @@ class SVOProcessor(TitleProcessor):
     def process(self, doc, debug=False):
         if debug:
             [self._to_nltk_tree(sent.root).pretty_print() for sent in doc.sents]
-        triples = []
+        self.triples = []
         for token in doc:
             # If statements can be highly misleading (as a source of Truth)
             if token.text == "if":
@@ -111,10 +113,13 @@ class SVOProcessor(TitleProcessor):
                 self._debug_token(token)
             subject_object_triples = self._find_triples(token, debug)
             if subject_object_triples:
-                triples += subject_object_triples
-        return triples
+                self.triples += subject_object_triples
+        return self.triples
 
     def _find_triples(self, token, debug=False):
+        is_open_clausal_complement = self._is_open_clausal_complement(token)
+        if is_open_clausal_complement:
+            return is_open_clausal_complement
         is_object_of_prepositional_phrase = self._is_object_of_prepositional_phrase(token)
         if is_object_of_prepositional_phrase:
             if debug:
@@ -126,15 +131,25 @@ class SVOProcessor(TitleProcessor):
                 print("is_object")
             return is_object
 
+
     def _verbs(self):
         return ["VERB", "AUX"]
 
     def _is_object_of_prepositional_phrase(self, token):
         # Finds objects of prepositional phrases
         # eg "Apply online for a UK passport", "Apply for this licence"
-        if (token.dep_ == "pobj" and token.head.dep_ == "prep") or (token.dep_=="dobj" and token.head.dep_ == "xcomp") and token.head.head.pos_ in self._verbs():
+        if (token.dep_ == "pobj" and token.head.dep_ == "prep") or \
+                (token.dep_=="dobj" and token.head.dep_ == "xcomp") and token.head.pos_ in self._verbs():
+            print("is object of prepositional phrase")
             triple = SVO()
-            triple.verb = token.head.head
+            verb = token.head.head
+            if token.head.pos_ in self._verbs():
+                verb = token.head
+            for existing_triple in self.triples:
+                if existing_triple.verb[0] == verb:
+                    print(f"verb: {existing_triple.verb} is already taken!")
+                    return None
+            triple.verb = self._verb(verb)
             triple.object = [token]
             triple.subject = []
             reversed_lefts = list(token.lefts) or []
@@ -154,13 +169,29 @@ class SVOProcessor(TitleProcessor):
                 triple.object = compound_lefts + triple.object
             return [triple]
 
+    def _verb(self, verb_token):
+        verbs = [verb_token]
+        for right_token in verb_token.rights:
+            if right_token.dep_ == "prt":
+                verbs.append(right_token)
+        return verbs
+
+    def _is_open_clausal_complement(self, token):
+        if token.dep_ == "xcomp" and token.head.pos_ in self._verbs():
+            print("_is_open_clausal_complement")
+            triple = SVO()
+            triple.verb = self._verb(token.head)
+            triple.object = [token]
+            triple.subject = []
+            return [triple]
+
     def _is_object(self, token):
         # Finds simple objects
         # eg "Get a passport for your child"
         # TODO: should probably extract "for your child" bit as a modifier of some kind
         if token.dep_ == "dobj" and token.head.pos_ in self._verbs():
             triple = SVO()
-            triple.verb = token.head.head
+            triple.verb = self._verb(token.head.head)
             triple.object = [token]
             compound_lefts = self._compound_left_compounds(token)
             if any(compound_lefts):
@@ -180,7 +211,7 @@ class SVOProcessor(TitleProcessor):
             for left in reversed_lefts:
                 print(f"left text: {left.text}")
                 print(f"left dep: {left.dep_}")
-                if left.dep_ == "compound":
+                if left.dep_ in ["compound", "amod"]:
                     compounded_lefts.append(left)
                     compounded_lefts += self._compound_left_compounds(left)
                 else:

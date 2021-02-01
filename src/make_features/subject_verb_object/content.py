@@ -14,6 +14,7 @@ class TitleProcessor:
         print(f"head dep: {token.head.dep_}")
         print(f"head head pos: {token.head.head.pos_}")
         print(f"lefts: {list(token.lefts)}")
+        print(f"rights: {list(token.rights)}")
         print()
 
 

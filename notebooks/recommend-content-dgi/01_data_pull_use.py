@@ -58,9 +58,8 @@ content_store_df = pd.read_csv(DATA_DIR + "/preprocessed_content_store_180121.cs
                                dtype=c.CONTENT_STORE_HEADERS,
                                parse_dates=c.CONTENT_STORE_DATES)
 cid_df = pd.DataFrame({'content_id': list(cid_count.keys()), 'relationship_flag': 1})
-cols_keep = ['document_type', 'content_id', 'first_published_at', 'details', 'description']
+cols_keep = ['base_path', 'document_type', 'content_id', 'first_published_at', 'details', 'description']
 subset_content_df = content_store_df.merge(cid_df, on='content_id', how='inner')[cols_keep].copy()
-
 del cid_count, cols_keep
 
 # get paragraph embeddings
@@ -68,17 +67,17 @@ df_para_embed = subset_content_df.swifter.apply(lambda x: get_paragraphs_and_emb
                                                                                         txt=x['details']),
                                                 axis=1)
 df_para_embed = pd.DataFrame(data=df_para_embed.to_list())
+df_para_embed = df_para_embed.dropna(subset=[1])
 
 df_para = df_para_embed[[0, 1]]
 df_para = df_para.rename(columns={0: 'content_id', 1: 'doc_text'})
-df_para = df_para.merge(right=content_store_df[['content_id', 'document_type', 'first_published_at']],
+df_para = df_para.merge(right=content_store_df[['content_id', 'base_path', 'document_type', 'first_published_at']],
                         how='left',
                         on='content_id')
-df_para = df_para.dropna(subset=['doc_text'])
 
 df_embed = pd.DataFrame(data=df_para_embed[2].to_list())
 df_embed['content_id'] = df_para_embed[0]
-df_embed = df_embed.dropna()
+
 
 # output dataframes
 df_para.to_csv(PROCESSED_DIR + '/text_use_large_2000_df.csv',

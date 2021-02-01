@@ -140,6 +140,7 @@ x_out = tf.squeeze(x_emb_out, axis=0)
 emb_model = Model(inputs=x_emb_in, outputs=x_out)
 
 # get the target, document type is the best I can think of at short notice
+# data from `notebooks/recommend-content-dgi/01_data_pull_use.py`
 text_df = pd.read_csv('data/processed/text_use_large_2000_df.csv')
 text_df.head()
 text_df['document_type'].value_counts()

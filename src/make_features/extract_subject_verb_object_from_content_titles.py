@@ -3,20 +3,22 @@ from src.make_features.subject_verb_object.content import Page
 import spacy
 import json
 
-def get_verbs_objects(pages, nlp):
+def get_verbs_objects(pages):
     objects = {}
     verbs = {}
-    for page in pages:
-        for title in page.titles(nlp):
-            for triple in title.subject_object_triples():
-                triple_object = triple.cypher_object()
-                triple_verb = triple.cypher_verb()
-                if triple_object not in objects:
-                    objects[triple_object] = []
-                objects[triple_object].append([triple_verb, page.base_path(), title.title])
-                if triple_verb not in verbs:
-                    verbs[triple_verb] = []
-                verbs[triple_verb].append([triple_object, page.base_path(), title.title])
+    num_pages = len(pages)
+    for index, page in enumerate(pages):
+        print(f"{index} of {num_pages}")
+        for triple in page.title.subject_object_triples():
+            triple_object = triple.cypher_object()
+            triple_verb = triple.cypher_verb()
+            if triple_object not in objects:
+                objects[triple_object] = []
+            objects[triple_object].append([triple_verb, page.base_path(), page.title.title])
+            if triple_verb not in verbs:
+                verbs[triple_verb] = []
+            verbs[triple_verb].append([triple_object, page.base_path(), page.title.title])
+    print("Found all SVOs, making them unique")
     verbs = find_unique_entries(verbs)
     objects = find_unique_entries(objects)
     return verbs, objects
@@ -36,29 +38,17 @@ def find_unique_entries(verbs_or_objects):
     return unique_entries
 
 if __name__ == "__main__":
-    all_content_items = pd.read_csv("data/processed/preprocessed_content_store_010221.csv", sep="\t", compression="gzip")
-    # all_content_items = pd.read_csv("data/processed/mini_content.csv")
+    all_content_items = pd.read_csv("data/processed/preprocessed_content_store.csv", sep="\t", compression="gzip")
     print("Finished reading from the preprocessed content store!")
     nlp = spacy.load("en_core_web_sm")
     pages = []
-    no_svos = []
     for index, content_item in all_content_items.iterrows():
-        page = Page(content_item, nlp)
-        pages.append(page)
-        titles = page.titles(nlp)
-        if any(titles):
-            if not any(titles[0].subject_object_triples()):
-                no_svos.append(titles[0].title)
-    print("*******************************************")
-    print("*******************************************")
-    print("*******************************************")
-    print("*******************************************")
-    print("*******************************************")
-    print("*******************************************")
-    print("*******************************************")
-    print(no_svos)
-    verbs, objects = get_verbs_objects(pages, nlp)
-    with open('outputs/objects.json', 'w') as json_file:
-        json.dump(objects, json_file)
-    with open('outputs/verbs.json', 'w') as json_file:
-        json.dump(verbs, json_file)
+        pages.append(Page(content_item, nlp))
+        print("Loaded pages, starting getting verbs/objects")
+        verbs, objects = get_verbs_objects(pages)
+        print("Saving to file")
+        with open('outputs/objects.json', 'w') as json_file:
+            json.dump(objects, json_file)
+        with open('outputs/verbs.json', 'w') as json_file:
+            json.dump(verbs, json_file)
+        print("Done!")

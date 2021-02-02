@@ -46,59 +46,6 @@ class TitleProcessor:
         print(f"rights: {list(token.rights)}")
         print()
 
-
-class EntityCombinationProcessor(TitleProcessor):
-    # The basic idea is that there are plenty of content items whose title
-    # is something like "Tourette's syndrome and driving" where the "and" combination
-    # is important - as it indicates that it's specifically related to Tourette's
-    # syndrome and it's relation to driving
-    #
-    # Known texts that perform well
-    # Optic neuritis and driving
-    # Tourette's syndrome and driving
-    #
-    # Texts that don't work/need further work
-    # Kindertransport and the State Pension
-    # Stroke (cerebrovascular accident) and driving
-    def process(self, doc, debug = False):
-        if debug:
-            [self._to_nltk_tree(sent.root).pretty_print() for sent in doc.sents]
-        last_cc_token = None
-        objects = []
-        join = None
-        for token in doc:
-            if debug:
-                self._debug_token(token)
-            if token.dep_ == "cc":
-                last_cc_token = token
-            if token.dep_ == "conj" and last_cc_token:
-                head_token = self._compound_left_compounds(token.head) + [token.head]
-                print(f"after adding left compounds, token is now: {head_token}")
-                objects.append(head_token)
-                objects.append(token)
-                join = last_cc_token
-        if any(objects):
-            return [objects, join]
-        else:
-            return []
-
-    def _compound_left_compounds(self, token):
-        compounded_lefts = []
-        reversed_lefts = list(token.lefts) or []
-        reversed_lefts.reverse()
-        print(f"compounded lefts for token: {token.text} are {reversed_lefts}")
-        if reversed_lefts:
-            for left in reversed_lefts:
-                print(f"left text: {left.text}")
-                print(f"left dep: {left.dep_}")
-                if left.dep_ == "amod":
-                    compounded_lefts.append(left)
-                    compounded_lefts += self._compound_left_compounds(left)
-                else:
-                    break
-        return compounded_lefts
-
-
 # Extracts Subject Verb Object (SVO) triples from content titles
 class SVOProcessor(TitleProcessor):
     def process(self, doc, debug=False):
@@ -117,57 +64,19 @@ class SVOProcessor(TitleProcessor):
         return self.triples
 
     def _find_triples(self, token, debug=False):
-        is_open_clausal_complement = self._is_open_clausal_complement(token)
-        if is_open_clausal_complement:
-            return is_open_clausal_complement
-        is_object_of_prepositional_phrase = self._is_object_of_prepositional_phrase(token)
-        if is_object_of_prepositional_phrase:
-            if debug:
-                print("is_object_of_prepositional_phrase")
-            return is_object_of_prepositional_phrase
-        is_object = self._is_object(token)
-        if is_object:
-            if debug:
-                print("is_object")
-            return is_object
+        for phrase_instance in [OpenClausalComplementPhrase(token, self.triples, debug),
+                                PrepositionalPhrase(token, self.triples, debug),
+                                ObjectPhrase(token, self.triples, debug)]:
+            if phrase_instance.result():
+                return phrase_instance.result()
 
-
-    def _verbs(self):
-        return ["VERB", "AUX"]
-
-    def _is_object_of_prepositional_phrase(self, token):
-        # Finds objects of prepositional phrases
-        # eg "Apply online for a UK passport", "Apply for this licence"
-        if (token.dep_ == "pobj" and token.head.dep_ == "prep") or \
-                (token.dep_=="dobj" and token.head.dep_ == "xcomp") and token.head.pos_ in self._verbs():
-            print("is object of prepositional phrase")
-            triple = SVO()
-            verb = token.head.head
-            if token.head.pos_ in self._verbs():
-                verb = token.head
-            for existing_triple in self.triples:
-                if existing_triple.verb[0] == verb:
-                    print(f"verb: {existing_triple.verb} is already taken!")
-                    return None
-            triple.verb = self._verb(verb)
-            triple.object = [token]
-            triple.subject = []
-            reversed_lefts = list(token.lefts) or []
-            reversed_lefts.reverse()
-            print(f"reversed lefts are: {reversed_lefts}")
-            if reversed_lefts:
-                for left in reversed_lefts:
-                    print(f"left text: {left.text}")
-                    print(f"left dep: {left.dep_}")
-                    if left.dep_ == "poss":
-                        triple.subject.append(left)
-                        print(f"After appending lefts, subject is now: {triple.subject}")
-            compound_lefts = self._compound_left_compounds(token)
-            if any(compound_lefts):
-                compound_lefts.reverse()
-                print(compound_lefts)
-                triple.object = compound_lefts + triple.object
-            return [triple]
+class Phrase():
+    def __init__(self, token, existing_triples, debug=False):
+        self.token = token
+        self.debug = debug
+        self.triple = None
+        self.existing_triples = existing_triples
+        self.called = False
 
     def _verb(self, verb_token):
         verbs = [verb_token]
@@ -176,44 +85,91 @@ class SVOProcessor(TitleProcessor):
                 verbs.append(right_token)
         return verbs
 
-    def _is_open_clausal_complement(self, token):
-        if token.dep_ == "xcomp" and token.head.pos_ in self._verbs():
-            print("_is_open_clausal_complement")
-            triple = SVO()
-            triple.verb = self._verb(token.head)
-            triple.object = [token]
-            triple.subject = []
-            return [triple]
+    def _verb_types(self):
+        return ["VERB", "AUX"]
 
-    def _is_object(self, token):
-        # Finds simple objects
-        # eg "Get a passport for your child"
-        # TODO: should probably extract "for your child" bit as a modifier of some kind
-        if token.dep_ == "dobj" and token.head.pos_ in self._verbs():
-            triple = SVO()
-            triple.verb = self._verb(token.head.head)
-            triple.object = [token]
-            compound_lefts = self._compound_left_compounds(token)
-            if any(compound_lefts):
-                compound_lefts.reverse()
-                print(f"reversed compound lefts are: {compound_lefts}")
-                triple.object = compound_lefts + triple.object
-                print(f"object is now: {triple.object}")
-            return [triple]
-
-    def _compound_left_compounds(self, token):
-        print(f"compounded lefts for token: {token.text}")
+    def _compound_left_compounds(self, compound_token, token_to_compound_to=None):
         compounded_lefts = []
-        reversed_lefts = list(token.lefts) or []
+        reversed_lefts = list(compound_token.lefts) or []
         reversed_lefts.reverse()
-        print(reversed_lefts)
         if reversed_lefts:
             for left in reversed_lefts:
-                print(f"left text: {left.text}")
-                print(f"left dep: {left.dep_}")
                 if left.dep_ in ["compound", "amod"]:
                     compounded_lefts.append(left)
                     compounded_lefts += self._compound_left_compounds(left)
                 else:
                     break
+        if token_to_compound_to:
+            compounded_lefts.reverse()
+            return compounded_lefts + token_to_compound_to
         return compounded_lefts
+
+    def _extract_subject(self):
+        reversed_lefts = list(self.token.lefts) or []
+        subject = []
+        reversed_lefts.reverse()
+        if reversed_lefts:
+            for left in reversed_lefts:
+                if left.dep_ == "poss":
+                    subject.append(left)
+        return subject
+
+    def _return_cached_result(self):
+        if self.called:
+            return [self.triple]
+        self.called = True
+
+    def _print_identified_phrase_debug_info(self):
+        if self.debug:
+            print(f"is instance of {self.__class__.__name__}")
+
+class OpenClausalComplementPhrase(Phrase):
+    def result(self):
+        self._return_cached_result()
+        if self.token.dep_ == "xcomp" and self.token.head.pos_ in self._verb_types():
+            self._print_identified_phrase_debug_info()
+            self.triple = SVO()
+            self.triple.verb = self._verb(self.token.head)
+            self.triple.object = [self.token]
+            self.triple.subject = []
+            return [self.triple]
+
+class ObjectPhrase(Phrase):
+    def result(self):
+        self._return_cached_result()
+        # Finds simple objects
+        # eg "Get a passport for your child"
+        if self.token.dep_ == "dobj" and self.token.head.pos_ in self._verb_types():
+            self.triple = SVO()
+            self.triple.verb = self._verb(self.token.head.head)
+            self.triple.object = [self.token]
+            self.triple.object = self._compound_left_compounds(self.token, self.triple.object)
+            return [self.triple]
+
+class PrepositionalPhrase(Phrase):
+    # Finds objects of prepositional phrases
+    # eg "Apply online for a UK passport", "Apply for this licence"
+    def result(self):
+        self._return_cached_result()
+        if (self.token.dep_ == "pobj" and self.token.head.dep_ == "prep") or \
+                (self.token.dep_=="dobj" and self.token.head.dep_ == "xcomp") and self.token.head.pos_ in self._verb_types():
+            # Needed for some complex phrases
+            verb = self.token.head.head
+            if self.token.head.pos_ in self._verb_types():
+                verb = self.token.head
+            # Needed for some complex phrases
+            if self._if_verb_already_used(verb):
+                return None
+            self.triple = SVO()
+            self.triple.verb = self._verb(verb)
+            self.triple.object = [self.token]
+            self.triple.subject = self._extract_subject()
+            self.triple.object = self._compound_left_compounds(self.token, self.triple.object)
+            return [self.triple]
+
+    def _if_verb_already_used(self, verb):
+        for existing_triple in self.existing_triples:
+            if existing_triple.verb[0] == verb:
+                return True
+
+

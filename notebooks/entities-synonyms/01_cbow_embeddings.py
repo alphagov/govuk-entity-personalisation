@@ -2,9 +2,13 @@ from src.utils.epoch_logger import EpochLogger
 import multiprocessing as mp
 from time import time
 
+import os
 import pandas as pd
 from gensim.models.phrases import Phrases, Phraser
 from gensim.models import Word2Vec
+
+
+DIR_INTERIM = os.getenv('DIR_DATA_INTERIM')
 
 
 # Reference: https://colab.research.google.com/drive/1A4x2yNS3V1nDZFYoQavpoX7AEQ9Rqtve#scrollTo=m1An-k0q9PMr
@@ -12,7 +16,7 @@ from gensim.models import Word2Vec
 n_cores = mp.cpu_count() - 1
 epoch_logger = EpochLogger()
 
-df = pd.read_csv(filepath_or_buffer='data/processed/content_store_clean.csv',
+df = pd.read_csv(filepath_or_buffer=DIR_INTERIM + '/content_store_clean.csv',
                  index_col=0)
 
 

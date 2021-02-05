@@ -1,3 +1,4 @@
+from src.make_features.extract_synonyms import extract_synonyms
 import os
 import json
 from gensim.models import Word2Vec
@@ -21,10 +22,17 @@ key_objects = [x.replace(' ', '_') for x in key_objects.keys()]
 key_verbs = [x.replace(' ', '_') for x in key_verbs.keys()]
 
 # get cbow terms
-cbow_terms = list(model_w2v.wv.vocab.keys())
-cbow_objects = list(set(key_objects) & set(cbow_terms))
-cbow_verbs = list(set(key_verbs) & set(cbow_terms))
-synonyms_objects = [model_w2v.wv.most_similar(positive=x) for x in cbow_objects]
-synonyms_verbs = [model_w2v.wv.most_similar(positive=x) for x in cbow_verbs]
-synonyms_objects = dict(zip(cbow_objects, synonyms_objects))
-synonyms_verbs = dict(zip(cbow_verbs, synonyms_verbs))
+synonyms_objects = extract_synonyms(model=model_w2v, terms=key_objects)
+synonyms_verbs = extract_synonyms(model=model_w2v, terms=key_verbs)
+
+# export to json file
+with open(DIR_PROCESSED + '/verbs_synonyms_cbow.json', mode='w') as fp:
+    json.dump(obj=synonyms_verbs,
+              fp=fp,
+              sort_keys=True,
+              indent=4)
+with open(DIR_PROCESSED + '/objects_synonyms_cbow.json', mode='w') as fp:
+    json.dump(obj=synonyms_objects,
+              fp=fp,
+              sort_keys=True,
+              indent=4)

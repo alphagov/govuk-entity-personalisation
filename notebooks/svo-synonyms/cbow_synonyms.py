@@ -15,6 +15,7 @@ with open(DIR_INTERIM + '/verbs.json') as fp:
     key_verbs = json.load(fp=fp)
 
 # load w2v model
+# from: `notebooks/entities_synonyms/01_cbow_embeddings.py`
 model_w2v = Word2Vec.load('model/word2vec_cbow.model')
 
 # transform each verb and object so suitable for comparing

@@ -721,7 +721,6 @@ MigrationBackup/
 data/*
 model/*
 !data/README.md
-!data/external/popularity.sql
 
 # Ignore the contents of the `data` sub-folders, except for their `.gitkeep` files; adapted from
 # https://stackoverflow.com/a/20652768
@@ -735,6 +734,7 @@ data/processed/*
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 !/data/interim/kg_entities.cypher
+!/data/external/popularity.sql
 !model/.gitkeep
 
 # Ignore the `.secrets` file

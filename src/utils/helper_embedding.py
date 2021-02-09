@@ -7,7 +7,8 @@ import tensorflow as tf
 from bs4 import BeautifulSoup
 
 
-# DAN model, lighter A stands for averaging
+# DAN model, lighter A stands for averaging; download and unzip
+# https://tfhub.dev/google/universal-sentence-encoder/4
 model = hub.load('data/external/universal-sentence-encoder_4')
 # Transformer model, more performant, runs on GPU, if available
 # model = hub.load('data/external/universal-sentence-encoder-large_5')

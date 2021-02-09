@@ -9,6 +9,10 @@ import pkg_resources
 from symspellpy import SymSpell
 
 
+# nltk.download('punkt')
+# nltk.download('wordnet')
+# python -m spacy download en_core_web_sm
+
 sp = spacy.load('en_core_web_sm')
 STOPWORDS_NLTK = set(stopwords.words('english'))
 STOPWORDS_SPACY = sp.Defaults.stop_words

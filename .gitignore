@@ -738,3 +738,9 @@ data/processed/*
 
 # Ignore the `.secrets` file
 .secrets
+
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride

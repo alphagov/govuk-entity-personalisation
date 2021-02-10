@@ -1,0 +1,22 @@
+[
+    {
+        "name": "user_id",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "registration_timestamp",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cookie_consent",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "feedback_consent",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED"
+    }
+]

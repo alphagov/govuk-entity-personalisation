@@ -1,3 +1,40 @@
+/* Normalised Weekly Page Hits */
+-- Get normalised weekly page hits using min-max normalisation.
+
+--  ---------
+--  Explainer
+--  ---------
+--  - Weekly to account for differences in daily and weekly traffic.
+--  - This is chosen so we can get popularity scores in the interval [0, 1].
+--  - We normalise to keep memory consumption low whilst retaining a ranking.
+--  - We use min-max normalisation for the intuitiveness of page hits with values closer to
+--      0 meaning they are less popular compared to pages with values closer to 1.
+--  To define our thinking/logic for the SQL, we define the following:
+--      x:      weekly page hits for each page
+--      group:  all pages per week
+
+--  ------------------
+--  Structure of query
+--  ------------------
+--  1.  Get relevant columns, `cte_all`.
+--          Includes transforming integer column to timestamp
+--  2.  Create id column, `cte_id`.
+--          This involves identifying normal pages (as defined by pagePath) from 'smart_answers' and
+--          'search' (as defined by other criteria)
+--  3.  Compute counts of page hits by week, `cte_week_counts`.
+--          We do it by week so we can account for the differences in weekday and weekend traffic together.
+--  4.  Compute the max and min page hits for all pages for each week, `cte_normalise`
+--          This is so we can normalise each page's page hits for each week
+--  5.  Compute the min-max normalised page hits for each page per week.
+
+--  ----------
+--  References
+--  ----------
+--  Use `SAFE_DIVIDE()` to handle division by 0 or NULL:
+--  https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-and-operators#mathematical-functions
+--  Also considered z-score standardisation:
+--  https://www.investopedia.com/terms/z/zscore.asp#:~:text=A%20Z%2Dscore%20is%20a,identical%20to%20the%20mean%20score
+
 WITH cte_all AS
 (
     SELECT
@@ -15,50 +52,48 @@ WITH cte_all AS
             AND hits.type = "PAGE"
 ),
 
-cte_counts AS
+cte_id AS
 (
     SELECT
         visitStartDate
         ,EXTRACT(WEEK FROM visitStartDate) AS visitStartDateWeek
-        ,pagePath
         ,CASE
-            WHEN documentType = 'simple_smart_answer' THEN 'smart_answers'
-            WHEN searchKeyword IS NOT NULL THEN 'search'
-            ELSE 'other'
-            END AS pageType
-        ,documentType
-        ,searchKeyword
-        ,COUNT(page) AS pageHits
+            WHEN documentType = 'simple_smart_answer' THEN CONCAT('smart answers - ', pagePath)
+            WHEN searchKeyword IS NOT NULL THEN CONCAT('search - ', pagePath)
+            ELSE CONCAT('other - ', pagePath)
+            END AS pageId
+        ,page
     FROM cte_all
+),
+
+cte_week_counts AS
+(
+    SELECT
+        visitStartDateWeek
+        ,pageId
+        ,COUNT(page) AS pageHits
+    FROM cte_id
     GROUP BY
-      visitStartDate
-      ,pagePath
-      ,documentType
-      ,searchKeyword
+        visitStartDateWeek
+        ,pageId
 ),
 
 cte_normalise AS
 (
     SELECT
         visitStartDateWeek
-        ,pagePath
-        ,pageType
-        ,documentType
-        ,searchKeyword
+        ,pageId
         ,pageHits
-        ,AVG(pageHits) OVER(PARTITION BY pagePath, pageType, documentType, searchKeyword ORDER BY visitStartDateWeek) AS pageHitsMean
-        ,STDDEV_POP(pageHits) OVER(PARTITION BY pagePath, pageType, documentType, searchKeyword ORDER BY visitStartDateWeek) AS pageHitsSd
-    FROM cte_counts
+        ,MAX(pageHits) OVER(PARTITION BY visitStartDateWeek) AS pageHitsMax
+        ,MIN(pageHits) OVER(PARTITION BY visitStartDateWeek) AS pageHitsMin
+    FROM cte_week_counts
 )
 
 SELECT
     visitStartDateWeek
-    ,pagePath
-    ,pageType
-    ,documentType
-    ,searchKeyword
+    ,pageId
     ,pageHits
-    ,pageHitsMean
-    ,pageHitsSd
-    ,(pageHits - pageHitsMean)/pageHitsSd AS pageNormalised
+    ,pageHitsMin
+    ,pageHitsMax
+    ,SAFE_DIVIDE((pageHits - pageHitsMin), (pageHitsMax - pageHitsMin)) AS pageNormalised
 FROM cte_normalise;

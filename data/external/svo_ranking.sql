@@ -40,7 +40,8 @@ date | dateWeek | page | pageHits | pageHitsMax | pageHitsMin |
 --  3.  Compute counts of page hits by week, `cte_week_counts`.
 --          We do it by week so we can account for the differences in weekday and weekend traffic together.
 --  4.  Compute the max and min page hits for all pages for each week, `cte_normalise`
---          This is so we can normalise each page's page hits for each week
+--          This is so we can normalise each page's page hits for each week.
+--          Also computing mean page hits per page per week.
 --  5.  Compute the min-max normalised page hits for each page per week.
 
 --  ----------
@@ -86,8 +87,7 @@ cte_id AS
 cte_week_counts AS
 (
     SELECT
-        visitStartDate
-        ,visitStartDateWeek
+        visitStartDateWeek
         ,pageId
         ,COUNT(page) AS pageHits
     FROM cte_id
@@ -99,12 +99,12 @@ cte_week_counts AS
 cte_normalise AS
 (
     SELECT
-        visitStartDate
-        ,visitStartDateWeek
+        visitStartDateWeek
         ,pageId
         ,pageHits
-        ,MAX(pageHits) OVER(PARTITION BY visitStartDateWeek) AS pageHitsMax
-        ,MIN(pageHits) OVER(PARTITION BY visitStartDateWeek) AS pageHitsMin
+        ,AVG(pageHits) OVER(PARTITION BY visitStartDateWeek, pageId) AS pageHitsMean
+        ,MAX(pageHits) OVER(PARTITION BY visitStartDateWeek) AS allPageHitsMax
+        ,MIN(pageHits) OVER(PARTITION BY visitStartDateWeek) AS allPageHitsMin
     FROM cte_week_counts
 )
 
@@ -112,7 +112,8 @@ SELECT
     visitStartDateWeek
     ,pageId
     ,pageHits
-    ,pageHitsMin
-    ,pageHitsMax
-    ,SAFE_DIVIDE((pageHits - pageHitsMin), (pageHitsMax - pageHitsMin)) AS pageHitsNormalised
+    ,pageHitsMean
+    ,allPageHitsMin
+    ,allPageHitsMax
+    ,SAFE_DIVIDE((pageHits - allPageHitsMin), (allPageHitsMax - allPageHitsMin)) AS pageHitsNormalised
 FROM cte_normalise;

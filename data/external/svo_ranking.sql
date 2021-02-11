@@ -95,5 +95,5 @@ SELECT
     ,pageHits
     ,pageHitsMin
     ,pageHitsMax
-    ,SAFE_DIVIDE((pageHits - pageHitsMin), (pageHitsMax - pageHitsMin)) AS pageNormalised
+    ,SAFE_DIVIDE((pageHits - pageHitsMin), (pageHitsMax - pageHitsMin)) AS pageHitsNormalised
 FROM cte_normalise;

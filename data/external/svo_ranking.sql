@@ -13,6 +13,22 @@
 --      x:      weekly page hits for each page
 --      group:  all pages per week
 
+-- -------
+-- Example
+-- -------
+-- The intention is to get a table like below:
+
+/*
+date | dateWeek | page | pageHits | pageHitsMax | pageHitsMin |
+| --- | --- | --- | --- | --- | --- |
+| 2021-01-01 | 1 | a | *12* | **56** | *12* |
+| 2021-01-02 | 1 | b | **56** | **56** | *12* |
+| 2021-01-06 | 1 | c | 23 | **56** | *12* |
+| 2021-01-09 | 2 | b | 54 | **87** | *46* |
+| 2021-01-13 | 2 | c | **87** | **87** | *46* |
+| 2021-01-14 | 2 | a | *46* | **87** | *46* |
+*/
+
 --  ------------------
 --  Structure of query
 --  ------------------
@@ -55,7 +71,8 @@ WITH cte_all AS
 cte_id AS
 (
     SELECT
-        visitStartDate
+        visitStartTime
+        ,visitStartDate
         ,EXTRACT(WEEK FROM visitStartDate) AS visitStartDateWeek
         ,CASE
             WHEN documentType = 'simple_smart_answer' THEN CONCAT('smart answers - ', pagePath)
@@ -69,7 +86,8 @@ cte_id AS
 cte_week_counts AS
 (
     SELECT
-        visitStartDateWeek
+        visitStartDate
+        ,visitStartDateWeek
         ,pageId
         ,COUNT(page) AS pageHits
     FROM cte_id
@@ -81,7 +99,8 @@ cte_week_counts AS
 cte_normalise AS
 (
     SELECT
-        visitStartDateWeek
+        visitStartDate
+        ,visitStartDateWeek
         ,pageId
         ,pageHits
         ,MAX(pageHits) OVER(PARTITION BY visitStartDateWeek) AS pageHitsMax

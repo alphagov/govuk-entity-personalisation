@@ -37,7 +37,9 @@ date | dateWeek | page | pageHits | pageHitsMax | pageHitsMin |
 --  2.  Create id column, `cte_id`.
 --          This involves identifying normal pages (as defined by pagePath) from 'smart_answers' and
 --          'search' (as defined by other criteria)
---  3.  Compute counts of page hits by week, `cte_week_counts`.
+--  3.  Compute counts of page hits by date, `cte_date_counts`.
+--         Need to do this as an intermediary step before computing average page hits.
+--  3.  Compute average page hits by week, `cte_week_counts`.
 --          We do it by week so we can account for the differences in weekday and weekend traffic together.
 --  4.  Compute the max and min page hits for all pages for each week, `cte_normalise`
 --          This is so we can normalise each page's page hits for each week.
@@ -84,13 +86,28 @@ cte_id AS
     FROM cte_all
 ),
 
+cte_date_counts AS
+(
+    SELECT
+        visitStartDate
+        ,visitStartDateWeek
+        ,pageId
+        ,COUNT(page) AS pageHits
+    FROM cte_id
+    GROUP BY
+        visitStartDate
+        ,visitStartDateWeek
+        ,pageId
+),
+
 cte_week_counts AS
 (
     SELECT
         visitStartDateWeek
         ,pageId
-        ,COUNT(page) AS pageHits
-    FROM cte_id
+        ,SUM(pageHits) AS pageHitsTotal
+        ,AVG(pageHits) AS pageHitsMean
+    FROM cte_date_counts
     GROUP BY
         visitStartDateWeek
         ,pageId
@@ -101,19 +118,19 @@ cte_normalise AS
     SELECT
         visitStartDateWeek
         ,pageId
-        ,pageHits
-        ,AVG(pageHits) OVER(PARTITION BY visitStartDateWeek, pageId) AS pageHitsMean
-        ,MAX(pageHits) OVER(PARTITION BY visitStartDateWeek) AS allPageHitsMax
-        ,MIN(pageHits) OVER(PARTITION BY visitStartDateWeek) AS allPageHitsMin
+        ,pageHitsTotal
+        ,pageHitsMean
+        ,MAX(pageHitsTotal) OVER(PARTITION BY visitStartDateWeek) AS allPageHitsMax
+        ,MIN(pageHitsTotal) OVER(PARTITION BY visitStartDateWeek) AS allPageHitsMin
     FROM cte_week_counts
 )
 
 SELECT
     visitStartDateWeek
     ,pageId
-    ,pageHits
+    ,pageHitsTotal
     ,pageHitsMean
     ,allPageHitsMin
     ,allPageHitsMax
-    ,SAFE_DIVIDE((pageHits - allPageHitsMin), (allPageHitsMax - allPageHitsMin)) AS pageHitsNormalised
+    ,SAFE_DIVIDE((pageHitsMean - allPageHitsMin), (allPageHitsMax - allPageHitsMin)) AS pageHitsMeanNormalised
 FROM cte_normalise;

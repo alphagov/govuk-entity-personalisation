@@ -1,15 +1,11 @@
-from typing import Union
 from tqdm import tqdm
 import torch
 from transformers import BertTokenizer
-from sklearn.metrics.pairwise import cosine_distances
 
 
 def preprocess_bert(data: list,
                     tokeniser_obj: BertTokenizer,
-                    max_length: int = None,
-                    padding: Union[bool, str] = 'longest',
-                    truncate: bool = False) -> (torch.Tensor, torch.Tensor, torch.Tensor):
+                    max_length: int = None) -> (torch.Tensor, torch.Tensor, torch.Tensor):
     """
     Preprocess text for applying pre-trained BERT model.
     References:
@@ -18,9 +14,6 @@ def preprocess_bert(data: list,
     :param data: List of the text to preprocess.
     :param tokeniser_obj: BertTokenizer object to tokenise data by.
     :param max_length: Integer of the maximum length to pad and truncate sentences to.
-    :param padding: Int or string of how much to pad sequences to.
-                    Default is longest which pads to longest sequence in batch.
-    :param truncate: Boolean to truncate or not to maximum length.
     :return: Tensor of token ids to be fed into BERT model.
     :return: Tensor of the indices specifying which tokens should be attended to by the BERT model.
     :return: Tensor of indicies specifing which tokens should be attended to by the BERT model,
@@ -43,8 +36,8 @@ def preprocess_bert(data: list,
         encoded_sentence = tokeniser_obj.encode_plus(text=sentence,
                                                      add_special_tokens=True,
                                                      max_length=max_length,
-                                                     padding=padding,
-                                                     truncation=truncate,
+                                                     padding='max_length',
+                                                     truncation=True,
                                                      return_attention_mask=True)
         # add outputs to list
         input_ids.append(encoded_sentence.get('input_ids'))
@@ -138,9 +131,7 @@ def evaluate_vectors(input_hidden_states,
                 vecs.append(vectors[sent_ind])
                 labels.append(input_tokenised_sentences[sent_ind][token_ind] + '_' + str(sent_ind))
 
-        # create numpy matrix to compute cosine distance
-        mat = torch.stack(vecs).detach().numpy()
+    # create numpy matrix to compute cosine distance
+    mat = torch.stack(vecs).detach().numpy()
 
-        cos_dist = cosine_distances(mat)
-
-        return mat, cos_dist
+    return mat, labels

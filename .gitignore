@@ -734,6 +734,7 @@ data/processed/*
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 !/data/interim/kg_entities.cypher
+!/data/external/svo_ranking.sql
 !model/.gitkeep
 
 # Ignore the `.secrets` file

@@ -1,4 +1,5 @@
 from tqdm import tqdm
+import numpy as np
 import torch
 from transformers import BertTokenizer
 
@@ -79,7 +80,7 @@ def get_vector(hidden_layers_form_arch: tuple,
     :param hidden_layers_form_arch: Tuple returned by the transformer library.
     :param token_index: Int of the token index for which a vector is desired.
     :param mode: String of the method we want to aggregate the top_n_layers by. Default is 4,
-                 meaning take last 4 layer outputs as they typically have richer representation of words
+                 meaning take last 4 layer outputs as they typically have richer representation of words.
     :param top_n_layers: Int of the top layers to aggregate by.
     :return: Size of the batch_size, seq_len and dimensions.
     """
@@ -104,20 +105,28 @@ def get_vector(hidden_layers_form_arch: tuple,
 
 def evaluate_vectors(input_hidden_states,
                      input_tokenised_sentences: list,
-                     attention_mask,
-                     max_len,
+                     attention_mask: torch.tensor,
+                     max_length: int,
                      mode: str = 'concat',
-                     top_n_layers: int = 4):
+                     top_n_layers: int = 4) -> (np.ndarry, list):
     """
     Get vectors for each word in each sentence and add the sentence number to the end of each word.
-    Calculates the cosine distance between each pair of words.
+
+    :param input_hidden_states: Tuple of hidden states of BERT model.
+    :param input_tokenised_sentences: List of the tokenised sentences get word embeddings from.
+    :param attention_mask: Tensor of the attention masks in BERT model for getting sentence length.
+    :param max_length: Integer of the maximum length to pad and truncate sentences to.
+    :param mode: String of the method we want to aggregate the top_n_layers by. Default is 4,
+                 meaning take last 4 layer outputs as they typically have richer representation of words.
+    :param top_n_layers: Int of the top layers to aggregate by.
+    :return: Array of word embeddings and labels.
     """
 
     vecs = list()
     labels = list()
     sent_lengths = attention_mask.sum(1).tolist()
 
-    for token_ind in range(max_len):
+    for token_ind in range(max_length):
         if token_ind == 0:
             # ignore CLS
             continue
@@ -131,7 +140,7 @@ def evaluate_vectors(input_hidden_states,
                 vecs.append(vectors[sent_ind])
                 labels.append(input_tokenised_sentences[sent_ind][token_ind] + '_' + str(sent_ind))
 
-    # create numpy matrix to compute cosine distance
+    # create numpy matrix of word embeddings
     mat = torch.stack(vecs).detach().numpy()
 
     return mat, labels

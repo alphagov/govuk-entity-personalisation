@@ -28,7 +28,7 @@ click==7.1.2
 colorama==0.4.4
 colorful==0.5.4
 commonmark==0.9.1
-cryptography==3.3.1
+cryptography==3.3.2
 cycler==0.10.0
 cymem==2.0.4
 dask==2.30.0

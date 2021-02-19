@@ -26,6 +26,14 @@ To allow/trust the [`.envrc`](.envrc) run the `allow` command using `direnv` at 
 direnv allow
 ```
 
+> **Note:** If you're using PyCharm, then you will need to apply a few more steps before running `direnv allow` in your shell:
+> - In your shell, run `pip install python-dotenv`.
+> - On PyCharm, click `PyCharm` -> `Preferences` -> `Plugins` and download the `EnvFile` plugin.
+> - On PyCharm, edit your configuration to `Enable EnvFile` by ticking the checkbox.
+> - On PyCharm, click `PyCharm` -> `Preferences` -> `Build, Execution, Deployment` -> `Console` -> `Python Console` and in the `Starting script` section, add the following Python code:
+>    + `from dotenv import load_dotenv`
+>    + `load_dotenv()`
+
 ### Installing Python packages
 
 To install required Python packages via `pip`, first [set up a Python virtual

@@ -1,6 +1,7 @@
 from src.make_features.helper_bert import preprocess_bert, evaluate_vectors
 from src.make_visualisations.helper_bert import plot_distances
 
+from time import time
 import pandas as pd
 from transformers import BertTokenizer, BertModel
 from sklearn.metrics.pairwise import cosine_similarity
@@ -29,8 +30,12 @@ input_ids, attention_masks, attention_masks_without_special_tokens = preprocess_
                                                                                      max_length=50)
 
 # call model on sentences
+time_start = time()
 outputs = model(input_ids, attention_masks)
 hidden_states = outputs[2]
+time_elapsed = round((time() - time_start) / 60, 2)
+print(f"Time elapsed: {time_elapsed}")
+del time_start, time_elapsed
 
 print(f"Total hidden layers: {len(hidden_states)}")
 print(f"First layer of batch_size, seq_length, vector_dim: {hidden_states[0].shape}")

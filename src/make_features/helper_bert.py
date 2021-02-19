@@ -108,7 +108,7 @@ def evaluate_vectors(input_hidden_states,
                      attention_mask: torch.tensor,
                      max_length: int,
                      mode: str = 'concat',
-                     top_n_layers: int = 4) -> (np.ndarry, list):
+                     top_n_layers: int = 4) -> (np.ndarray, list):
     """
     Get vectors for each word in each sentence and add the sentence number to the end of each word.
 

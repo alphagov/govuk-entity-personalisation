@@ -1,6 +1,8 @@
 from tqdm import tqdm
 import numpy as np
+import pandas as pd
 import torch
+from sklearn.metrics.pairwise import cosine_similarity
 from transformers import BertTokenizer
 
 
@@ -76,6 +78,8 @@ def get_vector(hidden_layers_form_arch: tuple,
                top_n_layers: int = 4) -> torch.Size:
     """
     Retrieve vectors for a token_index from the top_n_layers and concatenate, average or sum.
+    References:
+        - https://towardsdatascience.com/beyond-classification-with-transformers-and-hugging-face-d38c75f574fb
 
     :param hidden_layers_form_arch: Tuple returned by the transformer library.
     :param token_index: Int of the token index for which a vector is desired.
@@ -103,7 +107,7 @@ def get_vector(hidden_layers_form_arch: tuple,
     return None
 
 
-def evaluate_vectors(input_hidden_states,
+def evaluate_vectors(input_hidden_states: tuple,
                      input_tokenised_sentences: list,
                      attention_mask: torch.tensor,
                      max_length: int,
@@ -111,6 +115,8 @@ def evaluate_vectors(input_hidden_states,
                      top_n_layers: int = 4) -> (np.ndarray, list):
     """
     Get vectors for each word in each sentence and add the sentence number to the end of each word.
+    References:
+        - https://towardsdatascience.com/beyond-classification-with-transformers-and-hugging-face-d38c75f574fb
 
     :param input_hidden_states: Tuple of hidden states of BERT model.
     :param input_tokenised_sentences: List of the tokenised sentences get word embeddings from.
@@ -144,3 +150,42 @@ def evaluate_vectors(input_hidden_states,
     mat = torch.stack(vecs).detach().numpy()
 
     return mat, labels
+
+
+def get_similar_words(df: pd.DataFrame,
+                      col_word: str,
+                      similarity_score: float) -> pd.DataFrame:
+    """
+    Gets words and their synonyms, as defined by having a cosine-similarity score above a threshold.
+
+    :param df: Dataframe of words and their embeddings.
+    :param col_word: String of the column in df that has the word we want synonyms for.
+    :param similarity_score: Float of the threshold cosine-similarity score that a word has to be above to be a synonym.
+    :return: Dataframe of each word, their synonyms and the cosine-similarity score.
+    """
+    try:
+        # separate word_embeddings and words from df
+        word_embeddings = df.drop(columns=col_word)
+        word_embeddings = word_embeddings.to_numpy()
+        word = df[col_word].tolist()
+
+        # create df of words and their cosine-similarity with other words
+        cosine_similarities = cosine_similarity(X=word_embeddings)
+        cosine_similarities = pd.DataFrame(data=cosine_similarities,
+                                           columns=word)
+        cosine_similarities['word'] = word
+
+        # filter for only synonyms with cosine-similarity above threshold
+        cosine_similarities = pd.melt(frame=cosine_similarities,
+                                      id_vars='word',
+                                      var_name='synonym',
+                                      value_name='cosine_similarity_score')
+        df_synonyms = cosine_similarities[cosine_similarities['cosine_similarity_score'] > similarity_score]
+
+        # remove words and synonyms that are themselves
+        df_synonyms = df_synonyms[df_synonyms['word'] != df_synonyms['synonym']]
+
+        return df_synonyms
+
+    except Exception:
+        raise

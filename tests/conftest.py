@@ -6,6 +6,7 @@ pytest_plugins = [
     "tests.fixtures.utils.fixture_preprocess",
     "tests.fixtures.utils.fixture_helper_embedding",
     "tests.fixtures.utils.fixture_helper_intent_uis",
+    "tests.fixtures.make_features.fixture_helper_bert",
 ]
 
 

@@ -1,11 +1,10 @@
-from src.make_features.helper_bert import preprocess_bert, evaluate_vectors
+import src.make_features.helper_bert as f
 from src.make_visualisations.helper_bert import plot_distances
 
 import json
 from time import time
 import pandas as pd
 from transformers import BertTokenizer, BertModel
-from sklearn.metrics.pairwise import cosine_similarity
 
 
 # reference: https://towardsdatascience.com/beyond-classification-with-transformers-and-hugging-face-d38c75f574fb
@@ -26,9 +25,9 @@ model = BertModel.from_pretrained(pretrained_model_name_or_path=PRETRAINED_MODEL
 model.eval()
 
 # run sentences through tokeniser
-input_ids, attention_masks, attention_masks_without_special_tokens = preprocess_bert(data=text,
-                                                                                     tokeniser_obj=tokeniser,
-                                                                                     max_length=50)
+input_ids, attention_masks, attention_masks_without_special_tokens = f.preprocess_bert(data=text,
+                                                                                       tokeniser_obj=tokeniser,
+                                                                                       max_length=50)
 
 # call model on sentences
 time_start = time()
@@ -46,12 +45,12 @@ tokenised_sentence = [tokeniser.convert_ids_to_tokens(i) for i in input_ids]
 tokenised_sentence[0]
 
 # get word vectors and cosine similarity
-word_vectors, word = evaluate_vectors(input_hidden_states=hidden_states,
-                                      input_tokenised_sentences=tokenised_sentence,
-                                      attention_mask=attention_masks,
-                                      max_length=30,
-                                      mode='average',
-                                      top_n_layers=4)
+word_vectors, word = f.evaluate_vectors(input_hidden_states=hidden_states,
+                                        input_tokenised_sentences=tokenised_sentence,
+                                        attention_mask=attention_masks,
+                                        max_length=30,
+                                        mode='average',
+                                        top_n_layers=4)
 dict_embeddings = dict(zip(word, word_vectors.tolist()))
 word_embeddings = pd.DataFrame.from_dict(data=dict_embeddings, orient='index')
 word_embeddings = word_embeddings.reset_index()
@@ -62,22 +61,11 @@ word_embeddings.to_csv(path_or_buf='data/interim/df_word_embeddings.csv',
 
 # reload
 word_embeddings = pd.read_csv('data/interim/df_word_embeddings.csv')
-word_vectors = word_embeddings.drop(columns='index')
-word_vectors = word_vectors.to_numpy()
-word = word_embeddings['index'].tolist()
+words_similar = f.get_similar_words(df=word_embeddings,
+                                    col_word='index',
+                                    similarity_score=0.7)
 
-# create df of words with their cosine-similarity of other words
-cosine_similarities = cosine_similarity(X=word_vectors)
-cosine_similarities = pd.DataFrame(data=cosine_similarities,
-                                   columns=word)
-cosine_similarities['word'] = word
 
-# filter for only high cosine-similarities
-cosine_similarities = pd.melt(frame=cosine_similarities,
-                              id_vars='word',
-                              var_name='word_compare',
-                              value_name='cosine_similarity')
-words_similar = cosine_similarities[cosine_similarities['cosine_similarity'] > 0.7].copy()
 # remove underscore and number from words
 words_similar['word'] = words_similar['word'].str.replace(pat=r'_\d+', repl='')
 words_similar['word_compare'] = words_similar['word_compare'].str.replace(pat=r'_\d+', repl='')

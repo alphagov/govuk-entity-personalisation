@@ -8,7 +8,7 @@ or whatever you have chosen to call them in the previous step of creating embedd
 it makes sense to create various differently named flavours of embedding vectors and adding
 them to the settings json beneath, so that you can easily compare different vectors
 '''
-import src.utils.helper_annoy as a
+import src.make_visualisations.helper_annoy as a
 
 import os
 import json

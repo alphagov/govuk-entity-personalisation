@@ -1,4 +1,4 @@
-import src.utils.preprocess as f
+import src.make_data.preprocess as f
 
 
 def test_get_n_word_strings(variable_word_strings, two_word_strings):

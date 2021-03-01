@@ -1,5 +1,5 @@
 from src.utils.constants import CONTENT_STORE_HEADERS, CONTENT_STORE_DATES
-from src.utils.preprocess import clean_text
+from src.make_data.preprocess import clean_text
 
 from time import time
 from multiprocessing import cpu_count

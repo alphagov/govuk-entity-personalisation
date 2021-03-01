@@ -10,7 +10,7 @@ https://tfhub.dev/google/universal-sentence-encoder-large/5
 
 '''
 import src.utils.constants as c
-from src.utils.helper_embedding import get_paragraphs_and_embeddings
+from src.make_features.helper_embedding import get_paragraphs_and_embeddings
 import os
 import pickle
 import pandas as pd

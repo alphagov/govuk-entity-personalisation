@@ -1,4 +1,4 @@
-from src.utils.helper_embedding import reshape_df
+from src.make_features.helper_embedding import reshape_df
 
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer

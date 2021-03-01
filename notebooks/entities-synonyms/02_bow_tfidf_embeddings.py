@@ -1,5 +1,5 @@
-from src.utils.preprocess import get_n_word_strings
-from src.utils.helper_embedding import get_embedding_synonyms
+from src.make_data.preprocess import get_n_word_strings
+from src.make_features.helper_embedding import get_embedding_synonyms
 
 import pandas as pd
 import csv

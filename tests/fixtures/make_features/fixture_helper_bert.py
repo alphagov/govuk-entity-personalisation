@@ -15,3 +15,10 @@ def df_similar_words():
     return pd.DataFrame(data={'word': ['update', '903', '##tik', 'read'],
                               'synonym': ['read', '##tik', '903', 'update'],
                               'cosine_similarity_score': [0.819478, 0.786616, 0.786616, 0.819478]})
+
+
+@pytest.fixture()
+def df_similar_words_clean():
+    return pd.DataFrame(data={'word': ['read', 'update'],
+                              'synonym': ['update', 'read'],
+                              'cosine_similarity_score': [0.819478, 0.819478]})

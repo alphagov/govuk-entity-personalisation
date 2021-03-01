@@ -189,3 +189,44 @@ def get_similar_words(df: pd.DataFrame,
 
     except Exception:
         raise
+
+
+def clean_similar_words(df: pd.DataFrame,
+                        col_word_synonyms_score: list) -> pd.DataFrame:
+    """
+    Cleans a dataframe of words, synonyms and their similarity score through:
+        - Removing underscores
+        - Removing words that are BERT tokens
+        - Removing words that are numbers or have numbers in them
+        - Removing words that are the same after removing underscores
+        - Dropping duplicates of words and their synonyms, keeping the highest cosine-similarity record
+
+
+    :param df: Dataframe of words, their synonyms and cosine-similarity score.
+    :param col_word_synonyms_score: List of three-elements of the column names in order of words, synonyms and score.
+    :return Dataframe cleaned of words, synonyms and similarity scores.
+    """
+    try:
+        col_length = len(col_word_synonyms_score)
+
+        if col_length != 3:
+            raise Exception(f"Passed in {col_length} columns for col_word_synonyms_score. It should have 3.")
+        else:
+            for col in col_word_synonyms_score[:2]:
+                # remove underscore and numbers after underscore
+                df[col] = df[col].str.replace(pat=r'_\d+', repl='')
+                # remove word with BERT tokens and numbers
+                df = df[~df[col].str.contains("#")]
+                df = df[~df[col].str.contains("[0-9]")]
+
+            # remove duplicates
+            df = df[df[col_word_synonyms_score[0]] != df[col_word_synonyms_score[1]]]
+            df = df.sort_values(by=col_word_synonyms_score,
+                                ascending=[True, True, False])
+            df = df.drop_duplicates(subset=[col_word_synonyms_score[0], col_word_synonyms_score[1]],
+                                    keep='first')
+
+            return df
+
+    except Exception:
+        raise

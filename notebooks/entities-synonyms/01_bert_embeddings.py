@@ -6,7 +6,6 @@ from time import time
 import pandas as pd
 from transformers import BertTokenizer, BertModel
 
-
 # reference: https://towardsdatascience.com/beyond-classification-with-transformers-and-hugging-face-d38c75f574fb
 
 PRETRAINED_MODEL = 'bert-base-uncased'
@@ -55,45 +54,31 @@ dict_embeddings = dict(zip(word, word_vectors.tolist()))
 word_embeddings = pd.DataFrame.from_dict(data=dict_embeddings, orient='index')
 word_embeddings = word_embeddings.reset_index()
 
+# plot
+plot_distances(word_vectors=word_vectors,
+               labels=word,
+               dims=2,
+               title="Method: Average")
+
 # export
 word_embeddings.to_csv(path_or_buf='data/interim/df_word_embeddings.csv',
                        index=False)
 
 # reload
-word_embeddings = pd.read_csv('data/interim/df_word_embeddings.csv')
-words_similar = f.get_similar_words(df=word_embeddings,
-                                    col_word='index',
-                                    similarity_score=0.7)
+# word_embeddings = pd.read_csv('data/interim/df_word_embeddings.csv')
+df_words_similar = f.get_similar_words(df=word_embeddings,
+                                       col_word='index',
+                                       similarity_score=0.7)
 
-
-# remove underscore and number from words
-words_similar['word'] = words_similar['word'].str.replace(pat=r'_\d+', repl='')
-words_similar['word_compare'] = words_similar['word_compare'].str.replace(pat=r'_\d+', repl='')
-# remove duplicates on word and word_compare
-words_similar = words_similar[words_similar['word'] != words_similar['word_compare']]
-words_similar = words_similar.sort_values(by=['word', 'word_compare', 'cosine_similarity'],
-                                          ascending=[True, True, False])
-words_similar = words_similar.drop_duplicates(subset=['word', 'word_compare'],
-                                              keep='first')
-# remove tokens
-words_similar = words_similar[~words_similar['word'].str.contains("#")]
-words_similar = words_similar[~words_similar['word_compare'].str.contains("#")]
-# remove numbers
-words_similar = words_similar[~words_similar['word'].str.contains('[0-9]')]
-words_similar = words_similar[~words_similar['word_compare'].str.contains('[0-9]')]
+df_words_similar = f.clean_similar_words(df=df_words_similar,
+                                         col_word_synonyms_score=['word', 'synonym', 'cosine_similarity_score'])
 
 # reformat for json output
-word_synonyms = words_similar.groupby(by=['word'])[['word_compare',
-                                                    'cosine_similarity']].apply(lambda g: g.values.tolist()).to_dict()
+word_synonyms = df_words_similar.groupby(by=['word'])[['word_compare',
+                                                       'cosine_similarity']].apply(lambda g: g.values.tolist()).to_dict()  # noqa: E501
 
 with open('data/processed/bert_contentstore_synonyms.json', mode='w') as fp:
     json.dump(obj=word_synonyms,
               fp=fp,
               sort_keys=True,
               indent=4)
-
-# plot
-plot_distances(word_vectors=word_vectors,
-               labels=word,
-               dims=2,
-               title="Method: Average")

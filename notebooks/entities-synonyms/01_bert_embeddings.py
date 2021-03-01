@@ -1,6 +1,7 @@
 from src.make_features.helper_bert import preprocess_bert, evaluate_vectors
 from src.make_visualisations.helper_bert import plot_distances
 
+import json
 from time import time
 import pandas as pd
 from transformers import BertTokenizer, BertModel
@@ -14,7 +15,7 @@ PRETRAINED_MODEL = 'bert-base-uncased'
 df = pd.read_csv(filepath_or_buffer='data/interim/content_store_clean.csv',
                  index_col=0)
 
-text = df['text_clean'].tolist()[:500]
+text = df['text_clean'].tolist()[:100]
 # initialise tokeniser
 tokeniser = BertTokenizer.from_pretrained(PRETRAINED_MODEL)
 
@@ -45,16 +46,66 @@ tokenised_sentence = [tokeniser.convert_ids_to_tokens(i) for i in input_ids]
 tokenised_sentence[0]
 
 # get word vectors and cosine similarity
-word_vectors, labels = evaluate_vectors(input_hidden_states=hidden_states,
-                                        input_tokenised_sentences=tokenised_sentence,
-                                        attention_mask=attention_masks,
-                                        max_len=30,
-                                        mode='average',
-                                        top_n_layers=4)
+word_vectors, word = evaluate_vectors(input_hidden_states=hidden_states,
+                                      input_tokenised_sentences=tokenised_sentence,
+                                      attention_mask=attention_masks,
+                                      max_length=30,
+                                      mode='average',
+                                      top_n_layers=4)
+dict_embeddings = dict(zip(word, word_vectors.tolist()))
+word_embeddings = pd.DataFrame.from_dict(data=dict_embeddings, orient='index')
+word_embeddings = word_embeddings.reset_index()
+
+# export
+word_embeddings.to_csv(path_or_buf='data/interim/df_word_embeddings.csv',
+                       index=False)
+
+# reload
+word_embeddings = pd.read_csv('data/interim/df_word_embeddings.csv')
+word_vectors = word_embeddings.drop(columns='index')
+word_vectors = word_vectors.to_numpy()
+word = word_embeddings['index'].tolist()
+
+# create df of words with their cosine-similarity of other words
 cosine_similarities = cosine_similarity(X=word_vectors)
+cosine_similarities = pd.DataFrame(data=cosine_similarities,
+                                   columns=word)
+cosine_similarities['word'] = word
+
+# filter for only high cosine-similarities
+cosine_similarities = pd.melt(frame=cosine_similarities,
+                              id_vars='word',
+                              var_name='word_compare',
+                              value_name='cosine_similarity')
+words_similar = cosine_similarities[cosine_similarities['cosine_similarity'] > 0.7].copy()
+# remove underscore and number from words
+words_similar['word'] = words_similar['word'].str.replace(pat=r'_\d+', repl='')
+words_similar['word_compare'] = words_similar['word_compare'].str.replace(pat=r'_\d+', repl='')
+# remove duplicates on word and word_compare
+words_similar = words_similar[words_similar['word'] != words_similar['word_compare']]
+words_similar = words_similar.sort_values(by=['word', 'word_compare', 'cosine_similarity'],
+                                          ascending=[True, True, False])
+words_similar = words_similar.drop_duplicates(subset=['word', 'word_compare'],
+                                              keep='first')
+# remove tokens
+words_similar = words_similar[~words_similar['word'].str.contains("#")]
+words_similar = words_similar[~words_similar['word_compare'].str.contains("#")]
+# remove numbers
+words_similar = words_similar[~words_similar['word'].str.contains('[0-9]')]
+words_similar = words_similar[~words_similar['word_compare'].str.contains('[0-9]')]
+
+# reformat for json output
+word_synonyms = words_similar.groupby(by=['word'])[['word_compare',
+                                                    'cosine_similarity']].apply(lambda g: g.values.tolist()).to_dict()
+
+with open('data/processed/bert_contentstore_synonyms.json', mode='w') as fp:
+    json.dump(obj=word_synonyms,
+              fp=fp,
+              sort_keys=True,
+              indent=4)
 
 # plot
 plot_distances(word_vectors=word_vectors,
-               labels=labels,
+               labels=word,
                dims=2,
                title="Method: Average")

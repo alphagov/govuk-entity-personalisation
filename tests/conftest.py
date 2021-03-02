@@ -2,10 +2,11 @@ import pytest
 
 
 pytest_plugins = [
-    "tests.fixtures.fixture_helper_synonym",
-    "tests.fixtures.fixture_preprocess",
-    "tests.fixtures.fixture_helper_embedding",
-    "tests.fixtures.fixture_helper_intent_uis",
+    "tests.fixtures.utils.fixture_helper_synonym",
+    "tests.fixtures.make_data.fixture_preprocess",
+    "tests.fixtures.make_features.fixture_helper_embedding",
+    "tests.fixtures.make_features.fixture_helper_intent_uis",
+    "tests.fixtures.make_features.fixture_helper_bert",
 ]
 
 

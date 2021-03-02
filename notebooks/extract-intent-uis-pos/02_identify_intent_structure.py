@@ -1,4 +1,4 @@
-import src.utils.helper_intent_uis as f
+import src.make_features.helper_intent_uis as f
 
 import os
 import pandas as pd

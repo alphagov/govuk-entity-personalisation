@@ -1,4 +1,4 @@
-from src.utils.preprocess import get_n_word_strings
+from src.make_data.preprocess import get_n_word_strings
 from src.utils.helper_synonym import get_synonym_all
 
 from time import time

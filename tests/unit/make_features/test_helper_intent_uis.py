@@ -1,4 +1,4 @@
-import src.utils.helper_intent_uis as f
+import src.make_features.helper_intent_uis as f
 
 
 def test_get_linguistic_features(text_pos_input, text_pos_output):

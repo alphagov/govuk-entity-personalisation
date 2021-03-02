@@ -1,5 +1,5 @@
-from src.utils.preprocess import correct_doc_spelling
-import src.utils.helper_intent_uis as f
+from src.make_data.preprocess import correct_doc_spelling
+import src.make_features.helper_intent_uis as f
 import os
 import pandas as pd
 

@@ -1,4 +1,4 @@
-import src.utils.helper_embedding as f
+import src.make_features.helper_embedding as f
 import pytest
 from numpy import array_equal, round_
 

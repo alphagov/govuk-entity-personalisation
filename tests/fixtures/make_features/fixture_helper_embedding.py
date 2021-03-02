@@ -3,7 +3,7 @@ from pandas import DataFrame, Series
 from numpy import array
 
 
-txt_embedding = array(object=[0.00758314, -0.04057033, -0.00845575, -0.0201159 , -0.04586999,
+txt_embedding = array(object=[0.00758314, -0.04057033, -0.00845575, -0.0201159, -0.04586999,
                               0.00332502, -0.02775823, 0.05767533, 0.01903247, 0.03476274,
                               0.0288773, 0.01474632, 0.01945396, 0.06630314, 0.00538672,
                               -0.06145713, 0.02847647, 0.02201235, 0.01512327, 0.01092324,
@@ -108,6 +108,7 @@ txt_embedding = array(object=[0.00758314, -0.04057033, -0.00845575, -0.0201159 ,
                               -0.01225293, 0.03785187],
                       dtype='float32')
 
+
 @pytest.fixture()
 def df_embedding_mess():
     return DataFrame(data=[[0.15, 0.66, 0.78],
@@ -157,6 +158,3 @@ def content_embed():
             'details': ['The quick brown fox jumps over the lazy dog.',
                         'I am a sentence for which you would like to get its embedding'],
             'embedding': txt_embedding}
-
-
-

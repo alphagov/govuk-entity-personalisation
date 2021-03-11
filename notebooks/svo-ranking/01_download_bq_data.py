@@ -2,10 +2,8 @@ import os
 from google.cloud import bigquery
 import pandas_gbq as pdg
 
-
-DIR_RAW = os.getenv('DIR_DATA_RAW')
-DIR_EXTERNAL = os.getenv('DIR_DATA_EXTERNAL')
-
+DIR_RAW = os.getenv('DIR_DATA_RAW', 'data/raw')
+DIR_EXTERNAL = os.getenv('DIR_DATA_EXTERNAL', 'data/external')
 
 # store credentials file in environment variable, GOOGLE_APPLICATION_CREDENTIALS
 credential_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')

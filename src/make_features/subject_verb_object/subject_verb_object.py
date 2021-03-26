@@ -1,6 +1,28 @@
 from nltk import Tree
 
-class SVO:
+
+class LanguageArtifact():
+    def _cypher_safe(self, token):
+        if token is None:
+            return ""
+        if type(token) is list:
+            text = ''.join([t.text_with_ws for t in token])
+        else:
+            text = token.text
+        text = text.lower()
+        text = text.strip()
+        return text.replace("'", "")
+
+
+class Entity(LanguageArtifact):
+    def __init__(self):
+        self.entity = None
+
+    def cypher_entity(self):
+        return self._cypher_safe(self.entity)
+
+
+class SVO(LanguageArtifact):
     def __init__(self):
         self.subject = None
         self.object = None
@@ -15,17 +37,6 @@ class SVO:
     def cypher_verb(self):
         return self._cypher_safe(self.verb)
 
-    def _cypher_safe(self, token):
-        if token is None:
-            return ""
-        if type(token) is list:
-            text = ''.join([t.text_with_ws for t in token])
-        else:
-            text = token.text
-        text = text.lower()
-        text = text.strip()
-        return text.replace("'", "")
-
 
 # Superclass that is inherited by other classes that process titles in specific ways
 # Currently, this is EntityCombinationProcessor and SVOProcessor
@@ -36,15 +47,18 @@ class TitleProcessor:
         else:
             return node.orth_
 
+
     def _debug_token(self, token):
         print(f"text: {token.text}")
         print(f"dep: {token.dep_}")
+        print(f"pos: {token.pos_}")
         print(f"head dep: {token.head.dep_}")
         print(f"head pos: {token.head.pos_}")
         print(f"head head pos: {token.head.head.pos_}")
         print(f"lefts: {list(token.lefts)}")
         print(f"rights: {list(token.rights)}")
         print()
+
 
 # Extracts Subject Verb Object (SVO) triples from content titles
 class SVOProcessor(TitleProcessor):
@@ -70,7 +84,22 @@ class SVOProcessor(TitleProcessor):
             if phrase_instance.result():
                 return phrase_instance.result()
 
-class Phrase():
+
+class EntityProcessor(TitleProcessor):
+    def process(self, doc, debug=False):
+        if debug:
+            [self._to_nltk_tree(sent.root).pretty_print() for sent in doc.sents]
+        self.entities = []
+        for token in doc:
+            if debug:
+                self._debug_token(token)
+            result = EntityPhrase(token, self.entities, debug).result()
+            if result:
+                self.entities += result
+        return self.entities
+
+
+class Phrase:
     def __init__(self, token, existing_triples, debug=False):
         self.token = token
         self.debug = debug
@@ -123,6 +152,7 @@ class Phrase():
         if self.debug:
             print(f"is instance of {self.__class__.__name__}")
 
+
 class OpenClausalComplementPhrase(Phrase):
     def result(self):
         self._return_cached_result()
@@ -133,6 +163,7 @@ class OpenClausalComplementPhrase(Phrase):
             self.triple.object = [self.token]
             self.triple.subject = []
             return [self.triple]
+
 
 class ObjectPhrase(Phrase):
     def result(self):
@@ -145,6 +176,7 @@ class ObjectPhrase(Phrase):
             self.triple.object = [self.token]
             self.triple.object = self._compound_left_compounds(self.token, self.triple.object)
             return [self.triple]
+
 
 class PrepositionalPhrase(Phrase):
     # Finds objects of prepositional phrases
@@ -173,3 +205,23 @@ class PrepositionalPhrase(Phrase):
                 return True
 
 
+class EntityPhrase(Phrase):
+    # Finds entities in a sentence
+    # eg for "Passports and emergency travel documents"
+    # returns [["passports"], ["emergency", "travel", "documents"]]
+    def result(self):
+        self._return_cached_result()
+        if self.token.dep_ != "compound" and self.token.pos_ in ["NOUN", "PROPN"]:
+            self.triple = Entity()
+            # If it isn't a compound and is a noun, then it's (likely) an entity
+            #
+            # Sometimes an entity can be the leaf of an entity
+            # ie for something like "Emergency travel documents" then we
+            # will have detected "documents" as being the entity, so
+            # we need to append the compound lefts (here, "emergency" and "travel")
+            if any(self.token.lefts):
+                self.triple.entity = self._compound_left_compounds(self.token, [self.token])
+            else:
+                # Otherwise, it's just a single word entity, eg "passports"
+                self.triple.entity = [self.token]
+            return [self.triple]

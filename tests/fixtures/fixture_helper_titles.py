@@ -128,6 +128,38 @@ def pay_dartford_crossing_charge():
         ]
     }
 
+@pytest.fixture()
+def emissions_testing():
+    return {
+        "title": "Emissions testing",
+        "entities": [
+            {
+                "entity": "emissions testing"
+            }
+        ]
+    }
 
+@pytest.fixture()
+def passports_and_emergency_travel_documents():
+    return {
+        "title": "Passports and emergency travel documents",
+        "entities": [
+            {
+                "entity": "passports",
+            },
+            {
+                "entity": "emergency travel documents",
+            }
+        ]
+    }
 
-
+@pytest.fixture()
+def advisory_credit_committee():
+    return {
+        "title": "Advisory Credit Committee",
+        "entities": [
+            {
+                "entity": "advisory credit committee",
+            },
+        ]
+    }

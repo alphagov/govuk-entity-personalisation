@@ -28,7 +28,7 @@ print(f'Time taken to get synonyms: {elapsed_time} mins')
 # remove None values from dictionary so can easily convert to df
 entities_single_synonyms = {k: v for k, v in entities_single_synonyms.items() if v is not None}
 
-# write to csv
+# write to json
 with open('data/processed/thesaurus_synonyms.json', mode='w') as fp:
     json.dump(obj=entities_single_synonyms,
               fp=fp,

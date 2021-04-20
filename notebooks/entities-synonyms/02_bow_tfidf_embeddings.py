@@ -1,14 +1,18 @@
 from src.utils.preprocess import get_n_word_strings
 from src.utils.helper_embedding import get_embedding_synonyms
 
+import os
 import pandas as pd
 import csv
 import json
 from tqdm import tqdm
 
 
-df_bow = pd.read_pickle(filepath_or_buffer='data/processed/tf_embeddings.pkl')
-df_tfidf = pd.read_pickle(filepath_or_buffer='data/processed/tfidf_embeddings.pkl')
+DIR_PROCESSED = os.getenv('DIR_DATA_PROCESSED')
+
+
+df_bow = pd.read_pickle(filepath_or_buffer=DIR_PROCESSED + '/tf_embeddings.pkl')
+df_tfidf = pd.read_pickle(filepath_or_buffer=DIR_PROCESSED + '/tfidf_embeddings.pkl')
 # generated from data/interim/kg_entities.cypher
 with open('data/interim/kg_entities.csv', encoding='utf-8') as csv_file:
     # skip first line
@@ -44,7 +48,7 @@ for counter, df in enumerate((df_bow, df_tfidf)):
     df_entities = df_entities[['word', 'embedding_synonyms']]
 
     # save as json files
-    file_name = 'data/processed/' + file_names[counter] + '.json'
+    file_name = DIR_PROCESSED + '/' + file_names[counter] + '.json'
     synonyms_save = dict(zip(df_entities['word'], df_entities['embedding_synonyms']))
     with open(file_name, mode='w') as fp:
         json.dump(obj=synonyms_save,

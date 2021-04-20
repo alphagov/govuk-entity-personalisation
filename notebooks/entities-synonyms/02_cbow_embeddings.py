@@ -1,12 +1,16 @@
+import os
 from gensim.models import Word2Vec
 import json
 import pandas as pd
 
 
+DIR_INTERIM = os.getenv('DIR_DATA_INTERIM')
+DIR_PROCESSED = os.getenv('DIR_DATA_PROCESSED')
+
 # load model and entities
 model_w2v = Word2Vec.load('model/word2vec_cbow.model')
 # generated from data/interim/kg_entities.cypher
-df_entities = pd.read_csv(filepath_or_buffer='data/interim/kg_entities.csv')
+df_entities = pd.read_csv(filepath_or_buffer=DIR_INTERIM + '/kg_entities.csv')
 
 # transform each entity so suitable for comparing
 entities = [item.lower() for item in df_entities['e.name']]
@@ -19,7 +23,7 @@ synonyms = [model_w2v.wv.most_similar(positive=x) for x in cbow_entities]
 cbow_synonyms = dict(zip(cbow_entities, synonyms))
 
 # save as json file - human-readable
-with open('data/processed/cbow_synonyms.json', mode='w') as fp:
+with open(DIR_PROCESSED + '/cbow_synonyms.json', mode='w') as fp:
     json.dump(obj=cbow_synonyms,
               fp=fp,
               sort_keys=True,
@@ -42,5 +46,5 @@ df_cbow_entities = df_cbow_entities.drop_duplicates(subset=['entity', 'entity_ty
 
 df_cbow_entities = df_cbow_entities.explode(column='synonym')
 df_cbow_entities = df_cbow_entities.dropna(subset=['synonym'])
-df_cbow_entities.to_csv(path_or_buf='data/processed/cbow_synonyms.csv',
+df_cbow_entities.to_csv(path_or_buf=DIR_PROCESSED + '/cbow_synonyms.csv',
                         index=False)

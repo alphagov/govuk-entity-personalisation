@@ -70,7 +70,7 @@ if __name__ == "__main__":
             chunksize += 1
         pool = multiprocessing.Pool(processes=num_work)
         pages = pool.starmap(build_page, zip((content_item for content_item in
-                                                            dataframe_chunk.iterrows()),
+                                             dataframe_chunk.iterrows()),
                                              itertools.repeat(nlp)), chunksize=chunksize)
         pool.close()
         pool.join()

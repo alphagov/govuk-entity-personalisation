@@ -1,5 +1,4 @@
 from src.make_features.subject_verb_object.subject_verb_object import SVOProcessor, EntityProcessor
-from nltk import Tree
 
 
 class Title:

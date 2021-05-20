@@ -47,7 +47,6 @@ class TitleProcessor:
         else:
             return node.orth_
 
-
     def _debug_token(self, token):
         print(f"text: {token.text}")
         print(f"dep: {token.dep_}")
@@ -184,7 +183,8 @@ class PrepositionalPhrase(Phrase):
     def result(self):
         self._return_cached_result()
         if (self.token.dep_ == "pobj" and self.token.head.dep_ == "prep") or \
-                (self.token.dep_=="dobj" and self.token.head.dep_ == "xcomp") and self.token.head.pos_ in self._verb_types():
+                (self.token.dep_ == "dobj" and self.token.head.dep_ == "xcomp") and \
+                self.token.head.pos_ in self._verb_types():
             # Needed for some complex phrases
             verb = self.token.head.head
             if self.token.head.pos_ in self._verb_types():

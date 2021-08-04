@@ -1,0 +1,20 @@
+{
+    "dgi_use_128": {
+        "ann_index": "dgi_use_128.ann",
+        "embedding_dim": 128,
+        "embeddings": "dgi_embeddings_df.csv",
+        "text": "text_use_large_2000_df.csv"
+    },
+    "dilbert": {
+        "ann_index": "sbert.ann",
+        "embedding_dim": 768,
+        "embeddings": "embeddings_distilbert_base_df.csv",
+        "text": "text_distilbert_base_df.csv"
+    },
+    "use_2000": {
+        "ann_index": "use_2000.ann",
+        "embedding_dim": 512,
+        "embeddings": "embeddings_use_large_2000_df.csv",
+        "text": "text_use_large_2000_df.csv"
+    }
+}

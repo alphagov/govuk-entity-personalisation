@@ -227,7 +227,7 @@ test_data['top_5'] = [1 if rrp >= 0.2 else 0 for rrp in test_data['reciprocal_ra
 np.mean(test_data['top_10'])
 np.mean(test_data['top_5'])
 # write results to file
-test_data.to_csv(os.path.join(data_dir, 'processed/test_predictions.csv'), header=True, index=False)
+test_data.to_csv(os.path.join(DATA_DIR, 'processed/test_predictions.csv'), header=True, index=False)
 
 # look at the aggregate MRR performance by category - shine a light on the ease of some predictions
 pagePath_abbreviated_lag1_test_MRR = (

@@ -13,7 +13,7 @@ CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.banner_sel
 -- interventionBanner)
 
 WITH
-  sessions_next_steps AS (
+  sessions_banner AS (
     SELECT DISTINCT
       CONCAT(fullVisitorId, "-", visitId) AS sessionId,
       hits.eventInfo.eventAction
@@ -29,7 +29,7 @@ WITH
   sessions_next_steps_shown AS (
     SELECT DISTINCT
       sessionId
-    FROM sessions_next_steps
+    FROM sessions_banner
     WHERE eventAction = 'interventionShown'
   ),
 
@@ -39,7 +39,7 @@ WITH
   sessions_next_steps_select AS (
     SELECT DISTINCT
       sessionId
-    FROM sessions_next_steps
+    FROM sessions_banner
     WHERE eventAction = 'interventionClicked'
   ),
 
@@ -49,7 +49,7 @@ WITH
   sessions_next_steps_reject AS (
     SELECT DISTINCT
       sessionId
-    FROM sessions_next_steps
+    FROM sessions_banner
     WHERE eventAction = 'interventionDismissed'
   ),
 

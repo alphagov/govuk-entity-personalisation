@@ -24,8 +24,8 @@
 #### Experimental group (banner intervention)
 
 - gov.uk users that access at least two Start a Business pages (as defined in this
- [Google Sheet document][SaBpages]) are presented with a banner that suggests that they might want to visit the
-  Start a Business checker.
+ [Google Sheet document][SaBpages]) are presented with a banner that suggests that they might
+ want to visit the Start a Business checker.
 - The banner is tracked on Google Analytics as an EVENT hit:
   - When users are shown the banner: `eventCategory = 'interventionBanner'`
                                      `eventAction = 'interventionShown'`
@@ -105,20 +105,28 @@
   a response to the banner in a new tab, or has a period of 30 minutes of inactivity
   on gov.uk before responding to the banner, then, for example, `interventionShown`
   and `interventionClicked` EVENT hits are recorded during different sessions.
+  <br>
   - As such, when calculating when the banner is ignored (as there is not a specific
     EVENT hit), keeping sessions where `interventionShown`, which do not also have
     an `interventionClicked` or `interventionDimissed` EVENT, will provide
-    incorrect results. See the below query as an example:
-
-    `SELECT DISTINCT`
-      `sessionId`
+    incorrect results. For example: <br>
+    `SELECT DISTINCT sessionId`
     `FROM sessions_next_steps_shown t1`
     `WHERE NOT EXISTS (SELECT sessionId FROM sessions_next_steps_select t2 WHERE`
      `t1.sessionId = t2.sessionId)`
       `AND NOT EXISTS (SELECT sessionId FROM sessions_next_steps_reject t3 WHERE`
-      `t1.sessionId = t3.sessionId)`
+      `t1.sessionId = t3.sessionId)`<br>
+    This query will not include a sessionId if the sessionId only has an 'interventionClicked'
+    or 'interventionDismissed' hit, and does not include an 'interventionShown' hit.
+    Therefore, there is a discrepancy in the count data as sessionIds that have been
+    included in the sessions_next_steps_select and sessions_next_steps_reject tables
+    have been incorrectly not included in this calculation.
+    <br>
+  - Therefore the number of sessions that ignore the banner has been calculated by
+    subtracting the number of sessions the either select or dismiss the banner,
+    from the number of sessions that are shown the banner.
 
-   This is because it will incorrectly count a session as 'ignore'
+
 
 ###### banner_selects_one_result.sql ######
 

@@ -1,5 +1,6 @@
-/* This query extracts the total number of sessions that selects the checker via
-   the banner intervention that also select at least one link on the results page
+/* This query extracts the total number and proportion of sessions that selects
+   the checker via the banner intervention that also select at least one link on
+   the results page
 */
 
 
@@ -12,7 +13,7 @@ CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.banner_one
 -- interventionClicked)
 
 WITH
-  sessions_next_steps AS (
+  sessions_select_banner AS (
     SELECT DISTINCT
       CONCAT(fullVisitorId, "-", visitId) AS sessionId
     FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
@@ -31,7 +32,7 @@ WITH
     CROSS JOIN UNNEST(hits) AS hits
     WHERE _TABLE_SUFFIX BETWEEN start_date AND end_date
       AND REGEXP_CONTAINS(hits.page.pagePath, r"^/run-business-from-home.*|^/renting-business-property-tenant-responsibilities.*|^/browse/business/premises-rates.*|^/running-a-limited-company/signs-stationery-and-promotional-material.*|^/business-finance-support?business_stages%5B%5D=not-yet-trading.*|^/business-coronavirus-support-finder.*|^/export-goods.*|^/research-export-markets.*|^/import-goods-into-uk.*|^/vat-registration.*|^/vat-registration/when-to-register.*|^/get-ready-to-employ-someone.*|^/browse/employing-people.*|^/corporation-tax.*|^/licence-finder.*|^https://www.abi.org.uk/products-and-issues/choosing-the-right-insurance/business-insurance/.*|^/check-if-you-need-tax-return.*|^/browse/business/sale-goods-services-data.*|^/cartels-price-fixing.*|^/data-protection-your-business.*|^https://www.hse.gov.uk/guidance/index.htm.*|^/browse/business/setting-up.*|^/running-a-limited-company/signs-stationery-and-promotional-material.*|^/managing-your-waste-an-overview.*|^/intellectual-property-an-overview.*|^/business-support-helpline.*|^/guidance/register-for-email-reminders-from-companies-house.*|^/vat-businesses.*")
-      AND CONCAT(fullVisitorId, "-", visitId) IN (SELECT sessionId FROM sessions_next_steps)
+      AND CONCAT(fullVisitorId, "-", visitId) IN (SELECT sessionId FROM sessions_select_banner)
   )
 
 -- The proportion of sessions that access the checker via the banner that also
@@ -41,4 +42,4 @@ SELECT
   COUNT(DISTINCT sessionId) AS allSessionsThatSelectChecker,
   (SELECT COUNT(DISTINCT sessionId) FROM sessions_select_result) AS allSessionsThatAccessAtLeastOneResult,
   CAST (100 * (SELECT COUNT(DISTINCT sessionId) FROM sessions_select_result)/COUNT(DISTINCT sessionId) AS NUMERIC) AS proportionOfAllSessionsThatAccessAtLeastOneResult
-FROM sessions_next_steps
+FROM sessions_select_banner

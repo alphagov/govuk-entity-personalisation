@@ -1,4 +1,4 @@
-/* This query extracts the total number and proportion of users that select the
+/* This query extracts the total number and proportion of sessions that select the
    checker via the banner intervention, reject the checker via the banner
    intervention, and that ignore the checker via the banner intervention.
 */

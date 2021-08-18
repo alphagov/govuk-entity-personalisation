@@ -11,7 +11,7 @@
   proportion.
 
 ###### email_selects_results_page.sql ######
-- This query extracts the proportion of users that access the results page once
+- This query extracts the proportion of users that access the results page (complete the checker) once
   selecting the SaB checker, i.e. total number of users that access the results
   page / total number of users that access the SaB checker via the email
 

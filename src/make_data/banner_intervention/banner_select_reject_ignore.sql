@@ -10,57 +10,28 @@ DECLARE end_date STRING DEFAULT "20210816";
 CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.banner_select_reject_ignore` AS
 
 -- All sessions that are shown the checker via the banner (eventCategory =
--- interventionBanner)
+-- interventionBanner) and are shown the banner (interventionShown), select the
+-- banner (interventionClicked), and dismiss the banner (interventionDismissed)
 
-WITH
-  sessions_banner AS (
-    SELECT DISTINCT
-      CONCAT(fullVisitorId, "-", visitId) AS sessionId,
-      hits.eventInfo.eventAction
-    FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
-    CROSS JOIN UNNEST(hits) AS hits
-    WHERE _TABLE_SUFFIX BETWEEN start_date AND end_date
-      AND hits.eventInfo.eventCategory = 'interventionBanner'
-  ),
-
--- All distinct sessions that are shown the banner (eventCategory = interventionBanner;
--- eventAction = interventionShown)
-
-  sessions_next_steps_shown AS (
-    SELECT DISTINCT
-      sessionId
-    FROM sessions_banner
-    WHERE eventAction = 'interventionShown'
-  ),
-
--- All distinct sessions that select the checker via the banner (eventCategory =
--- interventionBanner; eventAction = interventionClicked)
-
-  sessions_next_steps_select AS (
-    SELECT DISTINCT
-      sessionId
-    FROM sessions_banner
-    WHERE eventAction = 'interventionClicked'
-  ),
-
--- All distinct sessions that reject the checker via the banner (eventCategory =
--- interventionBanner; eventAction = interventionDismissed)
-
-  sessions_next_steps_reject AS (
-    SELECT DISTINCT
-      sessionId
-    FROM sessions_banner
-    WHERE eventAction = 'interventionDismissed'
-  ),
-
--- Join results
+WITH sessions_flags AS (
+     SELECT
+          CONCAT(fullVisitorId, "-", visitId) AS sessionId,
+          MAX(CASE WHEN hits.eventInfo.eventAction = 'interventionShown' THEN 1 ELSE 0 END) AS banner_shown,
+          MAX(CASE WHEN hits.eventInfo.eventAction = 'interventionClicked' THEN 1 ELSE 0 END) AS banner_clicked,
+          MAX(CASE WHEN hits.eventInfo.eventAction = 'interventionDismissed' THEN 1 ELSE 0 END) AS banner_rejected
+      FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
+      CROSS JOIN UNNEST(hits) AS hits
+      WHERE _TABLE_SUFFIX BETWEEN start_date AND end_date
+        AND hits.eventInfo.eventCategory = 'interventionBanner'
+      GROUP BY CONCAT(fullVisitorId, "-", visitId)
+),
 
 sessions_next_steps_all AS (
   SELECT
-    COUNT(DISTINCT sessionId) AS sessionsThatShownBanner,
-    (SELECT COUNT(DISTINCT sessionId) FROM sessions_next_steps_select) AS sessionsThatSelectBanner,
-    (SELECT COUNT(DISTINCT sessionId) FROM sessions_next_steps_reject) AS sessionsThatRejectBanner,
-  FROM sessions_next_steps_shown
+    SUM(banner_shown) AS sessionsThatShownBanner,
+    SUM(banner_clicked) AS sessionsThatSelectBanner,
+    SUM(banner_rejected) AS sessionsThatRejectBanner,
+  FROM sessions_flags
 )
 
 -- The proportion of users that select the banner, reject the banner, and ignore

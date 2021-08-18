@@ -11,14 +11,14 @@
   proportion.
 
 ###### email_selects_results_page.sql ######
-- This query extracts the proportion of users that access the results page (complete the checker) once
-  selecting the SaB checker, i.e. total number of users that access the results
-  page / total number of users that access the SaB checker via the email
+- This query extracts the proportion of sessions that access the results page (complete
+  the checker) once selecting the SaB checker, i.e. total number of sessions that access
+  the results page / total number of sessions that access the SaB checker via the email
 
 ###### email_selects_one_result.sql ######
-- This query extracts the proportion of users that select at least one link on the
-  results page once finishing the SaB checker, i.e. total number of users that
-  select 1 link on the results page / total number of users that access the SaB
+- This query extracts the proportion of sessions that select at least one link on the
+  results page once finishing the SaB checker, i.e. total number of sessions that
+  select 1 link on the results page / total number of sessions that access the SaB
   checker via the email
 
 #### Experimental group (banner intervention)
@@ -35,24 +35,25 @@
                                      `eventAction = 'interventionDismissed'`
 
 ###### banner_selects_results_page.sql ######
-- This query extracts the proportion of users that access the results (complete the checker) page once
-  selecting the SaB checker, i.e. total number of users that access the results
-  page / total number of users that access the SaB checker via the banner
+- This query extracts the proportion of sessions that access the results (complete
+  the checker) page once selecting the SaB checker, i.e. total number of sessions
+  that access the results page / total number of sessions that access the SaB checker
+  via the banner
 
 ###### banner_selects_one_result.sql ######
-- This query extracts the proportion of users that select at least one link on the
-  results page once finishing the SaB checker, i.e. total number of users that
-  select 1 link on the results page / total number of users that access the SaB
-  checker via the banner
+- This query extracts the proportion of sessions that select at least one link on
+  the results page once finishing the SaB checker, i.e. total number of sessions
+  that select 1 link on the results page / total number of sessions that access the
+  SaB checker via the banner
 
 ###### banner_select_reject_ignore.sql ######
-- This query extracts the proportion of users that select the checker via the
+- This query extracts the proportion of sessions that select the checker via the
   banner intervention, reject the checker via the banner intervention, and that
-  ignore the checker via the banner intervention, i.e. total number of users that
-  select the checker / total number of users that are shown the banner intervention;
-  total number of users that reject the checker / total number of users that are
-  shown the banner intervention; total number of users that ignore the checker /
-  total number of users that are shown the banner intervention;
+  ignore the checker via the banner intervention, i.e. total number of sessions that
+  select the checker / total number of sessions that are shown the banner intervention;
+  total number of sessions that reject the checker / total number of sessions that
+  are shown the banner intervention; total number of sessions that ignore the checker
+  / total number of sessions that are shown the banner intervention;
 
 ## Assumptions and caveats
 
@@ -125,8 +126,6 @@
   - Therefore the number of sessions that ignore the banner has been calculated by
     subtracting the number of sessions the either select or dismiss the banner,
     from the number of sessions that are shown the banner.
-
-
 
 ###### banner_selects_one_result.sql ######
 

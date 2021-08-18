@@ -37,7 +37,7 @@ WITH
 -- selects at least one results link on the results page
 
 SELECT
-  COUNT(DISTINCT sessionId) AS allSessionsThatSelectChecker,
-  (SELECT COUNT(DISTINCT sessionId) FROM sessions_email_results) AS allSessionsThatAccessAtLeastOneResult,
-  CAST (100 * (SELECT COUNT(DISTINCT sessionId) FROM sessions_email_results)/COUNT(DISTINCT sessionId) AS NUMERIC) AS proportionOfAllSessionsThatAccessAtLeastOneResult
+  COUNT(sessionId) AS allSessionsThatSelectChecker,
+  (SELECT COUNT(sessionId) FROM sessions_email_results) AS allSessionsThatAccessAtLeastOneResult,
+  CAST (100 * (SELECT COUNT(sessionId) FROM sessions_email_results)/COUNT(sessionId) AS NUMERIC) AS proportionOfAllSessionsThatAccessAtLeastOneResult
 FROM sessions_email_select

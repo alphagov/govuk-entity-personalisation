@@ -19,7 +19,7 @@
 - This query extracts the proportion of users that select at least one link on the
   results page once finishing the SaB checker, i.e. total number of users that
   select 1 link on the results page / total number of users that access the SaB
-  checker the email
+  checker via the email
 
 #### Experimental group (banner intervention)
 

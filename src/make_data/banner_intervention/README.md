@@ -39,6 +39,26 @@
 
 ###### banner_feedback.sql
 
+- This scripts provides the number and proportion of sessions where the user has
+  left feedback about the quality of the page where the banner is shown i.e. total
+  number of sessions that leave feedback on the banner trigger page / total number
+  of sessions that are shown the banner.
+
+###### banner_journey_results_page.sql
+
+- This query extracts the total number of journeys that visit the results page (i.e.
+  completes the checker), and groups by the two SaB pagePaths that trigger the banner
+  intervention.
+- This will provide us with an understanding of which pagePaths are most most likely
+  to result in user engagement with the checker.
+
+###### banner_journey_results_link.sql
+
+- This query extracts the total number of journeys that select at least 1 link on
+  the results page, and groups by the two SaB pagePaths that trigger the banner
+  intervention.
+- This will provide us with an understanding of which pagePaths are most most likely
+  to result in user engagement with the checker.
 
 ## Assumptions and caveats
 
@@ -61,5 +81,33 @@ that have landed on the pagePath from the Companies House email.
 - Therefore, it does not include sessions where other PAGE or EVENT hits occur
   immediately following the EVENT hit `interactionShown`, even if the pagePath of
   the EVENT hit `interactionShown` is the same as EVENT hit `ffNoClick` or `ffYesClick`.
+
+###### banner_journey_results_page.sql
+
+- This script aims to determine the two SaB pagePaths that result in the banner
+  being triggered.
+- It does this by only keeping SaB PAGE hits and the eventAction 'interventionClicked'.
+  - It then counts 2 pagePaths back and flags the pagePath.
+  - This is because for an 'interventionClicked' EVENT hit, the pagePath is the
+    same as one pagePath back (as 1 pagePath back is the PAGE hit). 2 pagePaths
+    back is the PAGE hit before the banner is shown.
+- It therefore makes the assumption that the two SaB pagePaths result in the banner
+  being triggered.
+- There are instances where the previousPagePath (2 pagePaths back) is `NULL`.
+  This could happen when a user session ends, because, for example, there is a 30
+  minute period of inactivity, or they have visited a DONE page from a cross-domain
+  page. Therefore, the user visited 1 SaB page in session 1, and a second SaB page
+  in session 2, then shown the banner in session 2. As this query analyses at the
+  session level, it is not able to extract the previousPagePath which is visited
+  in session 1.
+- There are instances where the previousPagePath and the pagePath are the same SaB
+  page. This could happen when a user refreshes a SaB page, and so this is recorded
+  as 2 PAGE hits (which triggers the banner). It could also be because although
+  there are multiple PAGE hits during a session, the user only visited 1 SaB page.
+  Then, the user visited the same SaB page at another time during the session,
+  which triggered the banner being shown.
+
+###### banner_journey_results_link.sql
+
 
 [SaBpages]: https://docs.google.com/spreadsheets/d/1CGogk1bgco1hYSSGsIcS-eZtdmWOhb-a6gIjkdMWFkQ/edit#gid=0

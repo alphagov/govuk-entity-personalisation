@@ -35,7 +35,7 @@
                                      `eventAction = 'interventionDismissed'`
 
 ###### banner_selects_results_page.sql ######
-- This query extracts the proportion of users that access the results page once
+- This query extracts the proportion of users that access the results (complete the checker) page once
   selecting the SaB checker, i.e. total number of users that access the results
   page / total number of users that access the SaB checker via the banner
 

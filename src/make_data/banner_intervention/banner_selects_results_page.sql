@@ -22,11 +22,11 @@ WITH
       AND hits.eventInfo.eventAction = 'interventionClicked'
   ),
 
--- All distinct sessions that select the checker via the banner that also get to
--- the end of the checker (i.e. the results page)
+-- All sessions that select the checker via the banner that also get to the end
+-- of the checker (i.e. the results page)
 
   sessions_results_page AS (
-    SELECT DISTINCT
+    SELECT
       CONCAT(fullVisitorId, "-", visitId) AS sessionId
     FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
     CROSS JOIN UNNEST(hits) AS hits

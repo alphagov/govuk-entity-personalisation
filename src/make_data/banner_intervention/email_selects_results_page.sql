@@ -20,11 +20,11 @@ WITH
     AND STARTS_WITH(hits.page.pagePath, "/next-steps-for-your-business?crn")
   ),
 
--- All distinct sessions that access the checker via the email that also get to the
--- end of the checker (i.e. the results page)
+-- All sessions that access the checker via the email that also get to the end of
+-- the checker (i.e. the results page)
 
   sessions_results_page AS (
-    SELECT DISTINCT
+    SELECT
       CONCAT(fullVisitorId, "-", visitId) AS sessionId
     FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
     CROSS JOIN UNNEST(hits) AS hits

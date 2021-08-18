@@ -65,7 +65,7 @@
 ###### email_selects_one_result.sql ######
 
 - A REGEXP_CONTAINS statement defines all results pagePaths as a string that starts
-  with the below, and matches any character, any number of times.
+  with the below, regardless of any following characters if they exist (which are captured by `.*`).
 - These are the pagePaths included that are linked from the results page:
 `/run-business-from-home`
 `/renting-business-property-tenant-responsibilities`

@@ -65,9 +65,16 @@
 
 ###### email_selects_one_result.sql ######
 
-- A REGEXP_CONTAINS statement defines all results pagePaths as a string that starts
-  with the below, regardless of any following characters if they exist (which are captured by `.*`).
-- These are the pagePaths included that are linked from the results page:
+- When a user selects a link on the results page, this is tracked as an EVENT hit:
+  `eventCategory = 'SmartAnswerClicked', eventLabel = 'the url they select'`
+- Therefore, by filtering sessionIds by `eventCategory = 'SmartAnswerClicked` will
+  filter all sessionIds that click at least 1 link on the results page.
+- In the future, the 'SmartAnswerClicked' eventCategory may be used for other types
+  of interactions. Therefore, future analyses also may need to filter by eventLabel.
+  However, for the current analyses, run between 03082021 - 16082021, this is not the
+  case.
+- These are the pagePaths that can be present in the eventLabel (i.e. the pages that
+  are linked from the results page):
 `/run-business-from-home`
 `/renting-business-property-tenant-responsibilities`
 `/browse/business/premises-rates`
@@ -129,8 +136,6 @@
 
 ###### banner_selects_one_result.sql ######
 
-- A REGEXP_CONTAINS statement defines all results pagePaths as a string that starts
-  with the below, and matches any character any number of times.
-- The pagePaths that are linked from the results page are defined above under `email_selects_one_result.sql`
+- Subject to the same caveats and assumptions as `email_selects_one_result.sql`
 
 [SaBpages]: https://docs.google.com/spreadsheets/d/1CGogk1bgco1hYSSGsIcS-eZtdmWOhb-a6gIjkdMWFkQ/edit#gid=0

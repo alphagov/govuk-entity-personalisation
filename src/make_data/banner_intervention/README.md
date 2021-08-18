@@ -37,6 +37,9 @@
   sessions that leave feedback on the results page / total number of sessions that
   access the results page
 
+###### banner_feedback.sql
+
+
 ## Assumptions and caveats
 
 #### Nonequivalent group (email)
@@ -47,5 +50,16 @@ that have landed on the pagePath from the Companies House email.
 
 #### Experimental group (banner intervention)
 
+###### banner_feedback.sql
+
+- This script aims to identify sessions that leave feedback on the page the banner
+  intervention is shown.
+- This script calculates feedback sessions of interest as sessions that have an
+  EVENT hit `ffNoClick` or `ffYesClick` (i.e. provide feedback) immediately following
+  an EVENT hit `interactionShown` (i.e. shown the banner).
+- In addition, these two EVENT hits must have the same pagePath.
+- Therefore, it does not include sessions where other PAGE or EVENT hits occur
+  immediately following the EVENT hit `interactionShown`, even if the pagePath of
+  the EVENT hit `interactionShown` is the same as EVENT hit `ffNoClick` or `ffYesClick`.
 
 [SaBpages]: https://docs.google.com/spreadsheets/d/1CGogk1bgco1hYSSGsIcS-eZtdmWOhb-a6gIjkdMWFkQ/edit#gid=0

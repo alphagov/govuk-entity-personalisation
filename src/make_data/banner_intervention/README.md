@@ -108,6 +108,6 @@ that have landed on the pagePath from the Companies House email.
   which triggered the banner being shown.
 
 ###### banner_journey_results_link.sql
-
+- Subject to the same caveats and assumptions as `banner_journey_results_page.sql`
 
 [SaBpages]: https://docs.google.com/spreadsheets/d/1CGogk1bgco1hYSSGsIcS-eZtdmWOhb-a6gIjkdMWFkQ/edit#gid=0

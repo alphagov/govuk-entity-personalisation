@@ -49,7 +49,7 @@ sessions_feedback AS (
 ),
 
 -- All sessions that leave feedback and are shown the banner during the same session.
--- Keep all EVENT hits and the eventCategory and  eventAction.
+-- Keep all EVENT hits and the eventCategory and eventAction.
 
 sessions_shown_banner_feedback AS (
     SELECT

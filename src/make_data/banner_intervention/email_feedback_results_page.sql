@@ -19,10 +19,10 @@ DECLARE end_date STRING DEFAULT "20210816";
 
 CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.email_feedback_results_page` AS
 
--- All distinct sessions that access the checker via the email
+-- All sessions that access the checker via the email
 
 WITH sessions_select_email AS (
-  SELECT DISTINCT
+  SELECT
     CONCAT(fullVisitorId, "-", visitId) AS sessionId
   FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
   CROSS JOIN UNNEST(hits) AS hits
@@ -45,12 +45,12 @@ sessions_result_page AS (
     AND CONCAT(fullVisitorId, "-", visitId) IN (SELECT sessionId FROM sessions_select_email)
 ),
 
--- All distinct sessions that visit the checker results page and leave feedback
+-- All sessions that visit the checker results page and leave feedback
 -- (eventAction = "ffNoClick" OR eventAction = "ffYesClick"), and sessionId matches
 -- those sessionIds that access the checker via the email
 
 sessions_feedback AS (
-  SELECT DISTINCT
+  SELECT
     CONCAT(fullVisitorId, "-", visitId) AS sessionId,
     hits.eventInfo.eventAction
   FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
@@ -65,8 +65,8 @@ sessions_feedback AS (
 
 SELECT
   eventAction,
-  COUNT(sessionId) AS totalSessionsThatLeaveFeedback,
+  COUNT(DISTINCT sessionId) AS totalSessionsThatLeaveFeedback,
   (SELECT totalSessionsThatAccessCheckerResults FROM sessions_result_page) AS totalSessionsThatAccessCheckerResults,
-  CAST (100 * COUNT(sessionId) / (SELECT totalSessionsThatAccessCheckerResults FROM sessions_result_page) AS NUMERIC) AS proportionOfSessionsThatAccessCheckerResultsAndLeaveFeedback
+  CAST (100 * COUNT(DISTINCT sessionId) / (SELECT totalSessionsThatAccessCheckerResults FROM sessions_result_page) AS NUMERIC) AS proportionOfSessionsThatAccessCheckerResultsAndLeaveFeedback
 FROM sessions_feedback
 GROUP BY eventAction

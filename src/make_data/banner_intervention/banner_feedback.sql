@@ -21,12 +21,12 @@ DECLARE end_date STRING DEFAULT "20210816";
 
 CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.banner_feedback` AS
 
--- All distinct sessions that are shown the checker via the banner (eventAction =
+-- All sessions that are shown the checker via the banner (eventAction =
 -- interventionShown)
 
 WITH
   sessions_banner AS (
-    SELECT DISTINCT
+    SELECT
         CONCAT(fullVisitorId, "-", visitId) AS sessionId
     FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
     CROSS JOIN UNNEST(hits) AS hits
@@ -34,11 +34,11 @@ WITH
       AND hits.eventInfo.eventAction = 'interventionShown'
   ),
 
--- All distinct sessions that leave feedback (eventAction = "ffNoClick" OR
+-- All sessions that leave feedback (eventAction = "ffNoClick" OR
 -- eventAction = "ffYesClick")
 
 sessions_feedback AS (
-    SELECT DISTINCT
+    SELECT
       CONCAT(fullVisitorId, "-", visitId) AS sessionId,
     FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
     CROSS JOIN UNNEST(hits) AS hits
@@ -51,7 +51,7 @@ sessions_feedback AS (
 -- Keep all PAGE hits and EVENT hits that have an eventCategory and/or eventAction.
 
 sessions_shown_banner_feedback AS (
-    SELECT DISTINCT
+    SELECT
         TIMESTAMP_MILLIS(CAST(hits.time + (visitStartTime * 1000) AS INT64)) AS datetime,
         CONCAT(fullVisitorId, "-", visitId) AS sessionId,
         hits.page.pagePath,
@@ -94,7 +94,7 @@ sessions_banner_feedback AS (
 sessions_feedback_count AS (
     SELECT
         nextEventAction,
-        COUNT(sessionId) AS totalNumberOfSessions
+        COUNT(DISTINCT sessionId) AS totalNumberOfSessions
     FROM sessions_banner_feedback
     GROUP BY nextEventAction
 )
@@ -104,7 +104,7 @@ sessions_feedback_count AS (
 SELECT
     nextEventAction,
     totalNumberOfSessions,
-    (SELECT COUNT(sessionId) FROM sessions_banner) as totalNumberOfSessionsThatShownBanner,
-    CAST (100 *  totalNumberOfSessions /  (SELECT COUNT(sessionId) FROM sessions_banner) AS NUMERIC) AS proportionOfSessionsThatLeaveFeedback
+    (SELECT COUNT(DISTINCT sessionId) FROM sessions_banner) as totalNumberOfSessionsThatShownBanner,
+    CAST (100 *  totalNumberOfSessions /  (SELECT COUNT(DISTINCT sessionId) FROM sessions_banner) AS NUMERIC) AS proportionOfSessionsThatLeaveFeedback
 FROM sessions_feedback_count
 group by nextEventAction, totalNumberOfSessions

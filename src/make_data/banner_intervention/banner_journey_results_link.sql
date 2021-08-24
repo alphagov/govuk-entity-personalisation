@@ -25,11 +25,11 @@ DECLARE end_date STRING DEFAULT "20210816";
 
 CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.banner_journey_results_link` AS
 
--- All distinct sessions that select the checker via the banner (eventAction =
+-- All sessions that select the checker via the banner (eventAction =
 -- interventionClicked)
 
 WITH sessions_select_banner AS (
-  SELECT DISTINCT
+  SELECT
     CONCAT(fullVisitorId, "-", visitId) AS sessionId,
     hits.eventInfo.eventAction
   FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
@@ -38,11 +38,11 @@ WITH sessions_select_banner AS (
     AND hits.eventInfo.eventAction  = 'interventionClicked'
  ),
 
--- All distinct sessions that select the checker via the banner that also visit
+-- All sessions that select the checker via the banner that also visit
 -- at least 1 result link on the results page of the checker.
 
 sessions_results_page AS (
-  SELECT DISTINCT
+  SELECT
      CONCAT(fullVisitorId, "-", visitId) AS sessionId
   FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
   CROSS JOIN UNNEST(hits) AS hits

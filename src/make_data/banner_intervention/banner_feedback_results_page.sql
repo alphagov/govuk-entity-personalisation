@@ -24,7 +24,7 @@ CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.banner_fee
 
 WITH
   sessions_select_banner AS (
-    SELECT DISTINCT
+    SELECT
       CONCAT(fullVisitorId, "-", visitId) AS sessionId
     FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
     CROSS JOIN UNNEST(hits) AS hits
@@ -38,8 +38,8 @@ WITH
 -- results page and leave feedback
 
   sessions_result_page AS (
-    SELECT DISTINCT
-    COUNT(DISTINCT CONCAT(fullVisitorId, "-", visitId)) AS totalSessionsThatAccessCheckerResults
+    SELECT
+      COUNT(DISTINCT CONCAT(fullVisitorId, "-", visitId)) AS totalSessionsThatAccessCheckerResults
     FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
     CROSS JOIN UNNEST(hits) AS hits
     WHERE _TABLE_SUFFIX BETWEEN start_date AND end_date
@@ -52,7 +52,7 @@ WITH
 -- those sessionIds that access the checker via the banner
 
 sessions_feedback AS (
-  SELECT DISTINCT
+  SELECT
     CONCAT(fullVisitorId, "-", visitId) AS sessionId,
     hits.eventInfo.eventAction
   FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
@@ -68,8 +68,8 @@ sessions_feedback AS (
 
 SELECT
   eventAction,
-  COUNT(sessionId) AS totalSessionsThatLeaveFeedback,
+  COUNT(DISTINCT sessionId) AS totalSessionsThatLeaveFeedback,
   (SELECT totalSessionsThatAccessCheckerResults FROM sessions_result_page) AS totalSessionsThatAccessCheckerResults,
-  CAST (100 * COUNT(sessionId) / (SELECT totalSessionsThatAccessCheckerResults FROM sessions_result_page) AS NUMERIC) AS proportionOfSessionsThatAccessCheckerResultsAndLeaveFeedback
+  CAST (100 * COUNT(DISTINCT sessionId) / (SELECT totalSessionsThatAccessCheckerResults FROM sessions_result_page) AS NUMERIC) AS proportionOfSessionsThatAccessCheckerResultsAndLeaveFeedback
 FROM sessions_feedback
 GROUP BY eventAction

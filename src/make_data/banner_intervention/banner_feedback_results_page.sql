@@ -29,6 +29,7 @@ WITH
     FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
     CROSS JOIN UNNEST(hits) AS hits
     WHERE _TABLE_SUFFIX BETWEEN start_date AND end_date
+      AND hits.eventInfo.eventCategory = 'interventionBanner'
       AND hits.eventInfo.eventAction = 'interventionClicked'
   ),
 

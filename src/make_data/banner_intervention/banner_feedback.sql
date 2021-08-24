@@ -49,7 +49,7 @@ sessions_feedback AS (
 ),
 
 -- All sessions that leave feedback and are shown the banner during the same session.
--- Keep all PAGE hits and EVENT hits that have an eventCategory and/or eventAction.
+-- Keep all EVENT hits and the eventCategory and  eventAction.
 
 sessions_shown_banner_feedback AS (
     SELECT
@@ -61,6 +61,7 @@ sessions_shown_banner_feedback AS (
     FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
     CROSS JOIN UNNEST(hits) AS hits
     WHERE _TABLE_SUFFIX BETWEEN start_date AND end_date
+        AND hits.type = 'EVENT'
         AND CONCAT(fullVisitorId, "-", visitId) IN (SELECT sessionId FROM sessions_feedback)
         AND CONCAT(fullVisitorId, "-", visitId) IN (SELECT sessionId FROM sessions_banner)
 ),

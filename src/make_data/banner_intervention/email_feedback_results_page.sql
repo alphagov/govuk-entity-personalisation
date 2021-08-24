@@ -17,7 +17,7 @@ output table.
 DECLARE start_date STRING DEFAULT "20210803";
 DECLARE end_date STRING DEFAULT "20210816";
 
-CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.email_feedback_results` AS
+CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.email_feedback_results_page` AS
 
 -- All distinct sessions that access the checker via the email
 

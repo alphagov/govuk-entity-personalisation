@@ -17,7 +17,7 @@ output table.
 DECLARE start_date STRING DEFAULT "20210803";
 DECLARE end_date STRING DEFAULT "20210816";
 
-CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.banner_feedback_results` AS
+CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.banner_feedback_results_page` AS
 
 -- All distinct sessions that select the checker via the banner (eventAction =
 -- interventionClicked)

@@ -79,8 +79,10 @@ that have landed on the pagePath from the Companies House email.
   an EVENT hit `interactionShown` (i.e. shown the banner).
 - In addition, these two EVENT hits must have the same pagePath.
 - Therefore, it does not include sessions where other PAGE or EVENT hits occur
-  immediately following the EVENT hit `interactionShown`, even if the pagePath of
-  the EVENT hit `interactionShown` is the same as EVENT hit `ffNoClick` or `ffYesClick`.
+  immediately following the EVENT hit `interactionShown`, and the EVENT hit
+  `ffNoClick` or `ffYesClick`. It sill does not include other PAGE or EVENT hits
+  even if the pagePath of the EVENT hit `interactionShown` is the same as EVENT
+  hit `ffNoClick` or `ffYesClick`.
 
 ###### banner_journey_results_page.sql
 

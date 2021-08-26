@@ -44,8 +44,7 @@ sessions_feedback AS (
     FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
     CROSS JOIN UNNEST(hits) AS hits
         WHERE _TABLE_SUFFIX BETWEEN start_date AND end_date
-        AND (hits.eventInfo.eventAction = "ffNoClick"
-        OR hits.eventInfo.eventAction = "ffYesClick")
+        AND hits.eventInfo.eventAction IN ("ffNoClick", "ffYesClick")
 ),
 
 -- All sessions that leave feedback and are shown the banner during the same session.

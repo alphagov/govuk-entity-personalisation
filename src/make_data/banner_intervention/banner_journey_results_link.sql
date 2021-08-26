@@ -30,8 +30,7 @@ CREATE OR REPLACE TABLE `govuk-bigquery-analytics.banner_intervention.banner_jou
 
 WITH sessions_select_banner AS (
   SELECT
-    CONCAT(fullVisitorId, "-", visitId) AS sessionId,
-    hits.eventInfo.eventAction
+    CONCAT(fullVisitorId, "-", visitId) AS sessionId
   FROM `govuk-bigquery-analytics.87773428.ga_sessions_*`
   CROSS JOIN UNNEST(hits) AS hits
   WHERE _TABLE_SUFFIX BETWEEN start_date AND end_date

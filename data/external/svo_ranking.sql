@@ -67,7 +67,7 @@ WITH cte_all AS
         `govuk-bigquery-analytics.87773428.ga_sessions_*` AS ga,
         UNNEST(hits) AS hits
     WHERE
-        _table_suffix > FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR))
+        _table_suffix > FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH))
             AND hits.type = "PAGE"
 ),
 

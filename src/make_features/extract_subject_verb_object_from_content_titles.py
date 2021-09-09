@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from src.make_features.subject_verb_object.content import Page
 from src.make_features.subject_verb_object.utils import spacy_model
@@ -55,6 +56,7 @@ def build_page(content_item, nlp_instance):
 
 
 if __name__ == "__main__":
+    DIR_PROCESSED = os.getenv('DIR_DATA_PROCESSED', 'data/processed')
     all_content_items = pd.read_csv("data/processed/preprocessed_content_store.csv", sep="\t", compression="gzip")
     print("Finished reading from the preprocessed content store!")
     nlp = spacy_model()
@@ -78,10 +80,10 @@ if __name__ == "__main__":
     print("Loaded pages, starting getting verbs/objects")
     verbs, objects, entities = get_verbs_objects(pages)
     print("Saving to file")
-    with open('outputs/objects.json', 'w') as json_file:
+    with open(DIR_PROCESSED + '/objects.json', 'w') as json_file:
         json.dump(objects, json_file)
-    with open('outputs/verbs.json', 'w') as json_file:
+    with open(DIR_PROCESSED + '/verbs.json', 'w') as json_file:
         json.dump(verbs, json_file)
-    with open('outputs/entities.json', 'w') as json_file:
+    with open(DIR_PROCESSED + '/entities.json', 'w') as json_file:
         json.dump(entities, json_file)
-        print("Done!")
+    print("Done!")

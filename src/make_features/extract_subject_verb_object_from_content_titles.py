@@ -57,6 +57,11 @@ def build_page(content_item, nlp_instance):
 if __name__ == "__main__":
     all_content_items = pd.read_csv("data/processed/preprocessed_content_store.csv", sep="\t", compression="gzip")
     print("Finished reading from the preprocessed content store!")
+    # Drop some columns to save memory
+    columns_to_remove = list(all_content_items.columns)
+    columns_to_remove.remove("base_path")
+    columns_to_remove.remove("title")
+    all_content_items.drop(columns=columns_to_remove, inplace=True)
     nlp = spacy_model()
     all_pages = []
     chunk_size = 50000
@@ -76,7 +81,7 @@ if __name__ == "__main__":
         pool.join()
         all_pages += list(pages)
     print("Loaded pages, starting getting verbs/objects")
-    verbs, objects, entities = get_verbs_objects(pages)
+    verbs, objects, entities = get_verbs_objects(all_pages)
     print("Saving to file")
     with open('outputs/objects.json', 'w') as json_file:
         json.dump(objects, json_file)
@@ -84,4 +89,4 @@ if __name__ == "__main__":
         json.dump(verbs, json_file)
     with open('outputs/entities.json', 'w') as json_file:
         json.dump(entities, json_file)
-        print("Done!")
+    print("Done!")

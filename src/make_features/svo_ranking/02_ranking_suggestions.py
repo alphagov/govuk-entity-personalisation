@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     # Remove pages we don't want (search pages or smart answers etc)
     # Reduces numbers a *lot*
-    df_ga = df_ga[~df_ga.pageId.str.contains("\?", na=False)]
+    df_ga = df_ga[~df_ga.pageId.str.contains("\\?", na=False)]
     df_ga = df_ga[~df_ga.pageId.str.contains("/y/", na=False)]
     df_ga = df_ga[~df_ga.pageId.str.contains("/n/", na=False)]
     df_ga = df_ga[~df_ga.pageId.str.contains("/[date]/", na=False)]
@@ -52,7 +52,10 @@ if __name__ == "__main__":
     index = 1
     for start in range(0, df_ga.shape[0], chunk_size):
         df_subset = df_ga.iloc[start:start + chunk_size]
-        df_subset[[
-               'pagePath',
-               'averagePageHitsMeanNormalised']].to_csv(path_or_buf=DIR_PROCESSED + f"/svo_ranking_{index}.csv", index=False)
+        df_subset[
+            [
+                'pagePath',
+                'averagePageHitsMeanNormalised'
+            ]
+        ].to_csv(path_or_buf=DIR_PROCESSED + f"/svo_ranking_{index}.csv", index=False)
         index += 1

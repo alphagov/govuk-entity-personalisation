@@ -56,8 +56,9 @@ def build_page(content_item, nlp_instance):
 
 
 if __name__ == "__main__":
+    DIR_RAW = os.getenv('DIR_DATA_RAW', 'data/raw')
     DIR_PROCESSED = os.getenv('DIR_DATA_PROCESSED', 'data/processed')
-    all_content_items = pd.read_csv("data/processed/preprocessed_content_store.csv", sep="\t", compression="gzip")
+    all_content_items = pd.read_csv(DIR_RAW + "/preprocessed_content_store.csv.gz", sep="\t", compression="gzip")
     print("Finished reading from the preprocessed content store!")
     nlp = spacy_model()
     all_pages = []

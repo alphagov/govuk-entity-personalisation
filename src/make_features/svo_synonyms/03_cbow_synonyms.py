@@ -11,7 +11,7 @@ if __name__ == "__main__":
     # from `src/make_features/extract_subject_verb_object_from_content_titles.py`
     with open(DIR_PROCESSED + '/objects.json') as fp:
         key_objects = json.load(fp=fp)
-    with open(DIR_PROCESSED + '/verbs.json') as fp:
+    with open(DIR_PROCESSED + '/entities.json') as fp:
         key_entities = json.load(fp=fp)
 
     # load w2v model

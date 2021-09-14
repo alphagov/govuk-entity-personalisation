@@ -44,7 +44,7 @@ def find_unique_entries(verbs_or_objects):
         for item in value:
             found = False
             for unique_item in unique_values:
-                if unique_item[0] == item[0]:
+                if unique_item == item:
                     found = True
             if not found:
                 unique_values.append(item)

@@ -60,12 +60,16 @@ if __name__ == "__main__":
     DIR_RAW = os.getenv('DIR_DATA_RAW', 'data/raw')
     DIR_PROCESSED = os.getenv('DIR_DATA_PROCESSED', 'data/processed')
     all_content_items = pd.read_csv(DIR_RAW + "/preprocessed_content_store.csv.gz", sep="\t", compression="gzip")
+    columns = list(all_content_items.columns)
+    columns.remove("base_path")
+    columns.remove("document_type")
+    columns.remove("title")
+    all_content_items.drop(labels=columns, axis=1, inplace=True)
     print("Finished reading from the preprocessed content store!")
     nlp = spacy_model()
     all_pages = []
-    chunk_size = 50000
+    chunk_size = 500
     num_work = int(multiprocessing.cpu_count())
-    # Running this in one go uses tens of Gb of memory, splitting it up makes this less of a problem
     for i in range(0, all_content_items.shape[0], chunk_size):
         dataframe_chunk = all_content_items[i:i + chunk_size]
         num_docs = len(dataframe_chunk)

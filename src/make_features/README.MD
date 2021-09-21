@@ -6,7 +6,7 @@ Some of the steps output intermediate files, there is no need to copy these to `
 
 ### Prerequisites
 
-* Virtualenv running Oython 3.7 (why 3.7? The version of Gensim we're using is not tested beyond it)
+* Virtualenv running Python 3.7 (why 3.7? The version of Gensim we're using is not tested beyond it)
 * Access to Google BigQuery (see [here](https://docs.publishing.service.gov.uk/manual/datalabs-bigquery.html#get-access-to-google-bigquery) for details on how to get it). You'll want to have a credentials file and the correct [environment variable](https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable) set up.
 
 
@@ -24,7 +24,7 @@ Some of the steps output intermediate files, there is no need to copy these to `
    >>> nltk.download('stopwords')
    >>> exit()
    ```
-7. Run the script `python -m src.make_features.extract_subject_verb_object_from_content_titles` (or `python3 -m src.make_features.extract_subject_verb_object_from_content_titles`). This can take quite a long time and will require at least 60GB of memory
+7. Run the script `python -m src.make_features.extract_subject_verb_object_from_content_titles` (or `python3 -m src.make_features.extract_subject_verb_object_from_content_titles`). This can take quite a long time.
 8. Go and make a cup of tea or something.
 9. When it's completed, there will be 3 files in the `/data/processed` directory, `entities.json`, `objects.json` and `verbs.json`
 

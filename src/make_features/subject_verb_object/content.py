@@ -27,8 +27,12 @@ class Title:
 
 class Page:
     def __init__(self, content_item, nlp):
-        self.content_item = content_item
+        self._base_path = content_item['base_path']
+        self._document_type = content_item['document_type']
         self.title = Title(content_item['title'], nlp)
 
     def base_path(self):
-        return self.content_item['base_path']
+        return self._base_path
+
+    def document_type(self):
+        return self._document_type

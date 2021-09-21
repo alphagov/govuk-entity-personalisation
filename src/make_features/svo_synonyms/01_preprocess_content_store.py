@@ -10,9 +10,8 @@ import swifter  # noqa: F401
 
 
 if __name__ == "__main__":
-    DIR_RAW = os.getenv('DIR_DATA_RAW')
-    DIR_INTERIM = os.getenv('DIR_DATA_INTERIM')
-
+    DIR_RAW = os.getenv('DIR_DATA_RAW', 'data/raw')
+    DIR_INTERIM = os.getenv('DIR_DATA_INTERIM', 'data/interim')
 
     # import data
     df = pd.read_csv(filepath_or_buffer=DIR_RAW + '/preprocessed_content_store.csv.gz',

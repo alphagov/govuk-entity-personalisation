@@ -7,6 +7,10 @@ import multiprocessing
 import itertools
 
 
+def page_data(word, page):
+    return [word, page.base_path(), page.title.title, page.document_type()]
+
+
 def get_verbs_objects(processed_pages):
     found_objects = {}
     found_verbs = {}
@@ -20,16 +24,16 @@ def get_verbs_objects(processed_pages):
                 triple_verb = triple.cypher_verb()
                 if triple_object not in found_objects:
                     found_objects[triple_object] = []
-                found_objects[triple_object].append([triple_verb, page.base_path(), page.title.title])
+                found_objects[triple_object].append(page_data(triple_verb, page))
                 if triple_verb not in found_verbs:
                     found_verbs[triple_verb] = []
-                found_verbs[triple_verb].append([triple_object, page.base_path(), page.title.title])
+                found_verbs[triple_verb].append(page_data(triple_object, page))
         elif any(page.title.entities()):
             for entity in page.title.entities():
                 cypher_entity = entity.cypher_entity()
                 if cypher_entity not in found_entities:
                     found_entities[cypher_entity] = []
-                found_entities[cypher_entity].append([cypher_entity, page.base_path(), page.title.title])
+                found_entities[cypher_entity].append(page_data(cypher_entity, page))
     print("Found all SVOs and entities, making them unique")
     unique_verbs = find_unique_entries(found_verbs)
     unique_objects = find_unique_entries(found_objects)
